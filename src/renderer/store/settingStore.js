@@ -70,6 +70,11 @@ export const useSettingStore = defineStore('setting', {
             fontSizeLevel: 3,
             fontSize: 17.5
         },
+        track: {
+            quality: {
+                index: 0
+            }
+        }
     }),
     getters: {
 
@@ -83,6 +88,27 @@ export const useSettingStore = defineStore('setting', {
             const { getTheme } = useThemeStore()
             const { type, index } = this.theme
             return getTheme(type, index)
+        },
+        isCurrentTheme(theme) {
+            if (!theme || !theme.id) return false
+            const current = this.getCurrentTheme()
+            return current.id === theme.id
+        },
+        setupFontFamily() {
+            EventBus.emit('setting-fontFamily', this.common.fontFamily)
+        },
+        setupFontWeight() {
+            const weight = this.common.fontWeight || 400
+            EventBus.emit('setting-fontWeight', weight)
+        },
+        allFontSizeLevels() {
+            return FONTSIZE_LEVELS.slice(1)
+        },
+        currentFontSizeLevel() {
+            return this.common.fontSizeLevel
+        },
+        currentFontSize() {
+            return this.common.fontSize
         },
     }
 })

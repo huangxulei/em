@@ -7,6 +7,7 @@ export const useThemeStore = defineStore('themes', {
     }),
     getters: {},
     actions: {
+        //从themes.json 里面获取数据
         getTheme(type, index) {
             index = index > 0 ? index : 0
             const allThemes = [presetThemes, this.customThemes]
