@@ -5,6 +5,15 @@ import { useRouter } from "vue-router";
 import EventBus from '../common/EventBus'
 import { Playlist } from '../common/Playlist';
 import { isDevEnv } from '../common/Utils'
+import { usePlatformStore } from './store/platformStore';
+import { useAppCommonStore } from './store/appCommonStore'
+import { useSettingStore } from './store/settingStore'
+
+const { setExploreMode, setArtistExploreMode, setRadioExploreMode, setUserHomeExploreMode, updateCurrentPlatformByCode } = usePlatformStore()
+const { exploreModeCode, isUserHomeMode } = storeToRefs(useAppCommonStore())
+const { hidePlayingView, hideVideoPlayingView } = useAppCommonStore()
+const { isSimpleLayout } = storeToRefs(useSettingStore())
+const { switchToFallbackLayout } = useSettingStore()
 /* 全局Router设置  */
 const router = useRouter()
 const setupRouter = () => {
@@ -12,6 +21,7 @@ const setupRouter = () => {
         if (isDevEnv()) console.log("[ ROUTE ] ==>>> " + to.path)
         autoSwitchExploreMode(to)
         highlightPlatform(to)
+        hideRelativeComponents(to)//清除所有显示的组件
     })
 }
 
@@ -52,8 +62,43 @@ const highlightPlatform = (to) => {
     updateCurrentPlatformByCode(platform)
 }
 
+const hideRelativeComponents = (to) => {
+    hidePlayingView()
+    hideVideoPlayingView()
+}
+
 setupRouter()
 
+const currentRoutePath = () => (router.currentRoute.value.path)
+const resolveExploreMode = (exploreMode) => (exploreMode || exploreModeCode.value)
+const resolveRoute = (route) => (typeof (route) == 'object' ? route : { toPath: route.toString() })
+const visitRoute = (route) => {
+    return new Promise((resolve, reject) => {
+        if (!route) {
+            return
+        }
+        const { toPath, onRoutReady, beforeRoute } = resolveRoute(route)
+        if (!toPath) {
+            return
+        }
+        if (beforeRoute) beforeRoute(toPath)
+        const fromPath = currentRoutePath()
+        const isSame = (fromPath == toPath)
+        if (isSame) {
+            return
+        }
+        if (onRoutReady) onRoutReady(toPath)
+        router.push(toPath)
+        if (resolve) resolve()
+
+    })
+}
+
+provide('appRoute', {
+    currentRoutePath, visitRoute,
+    backward: () => router.back(),
+    forward: () => router.forward(),
+})
 </script>
 <template>
     <slot></slot>

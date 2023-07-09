@@ -3,7 +3,7 @@ import EventBus from '../../common/EventBus'
 import { useIpcRenderer, useIpcRenderer } from '../../common/Utils'
 import { useThemeStore } from './themeStore'
 
-const useIpcRenderer = useIpcRenderer()
+const ipcRenderer = useIpcRenderer()
 
 const QUALITIES = [
     {
@@ -77,9 +77,28 @@ export const useSettingStore = defineStore('setting', {
         }
     }),
     getters: {
-
+        isDefaultClassicLayout() {
+            return this.layout.index == 1
+        },
+        isSimpleLayout() {
+            return this.layout.index == 2
+        },
     },
     actions: {
+        setThemeIndex(index, type) {
+            this.theme.index = index || 0
+            this.theme.type = type || 0
+        },
+        setLayoutIndex(index) {
+            this.layout.index = index || 0
+            const currentIndex = this.layout.index
+            if (currentIndex < 1) this.layout.fallbackIndex = currentIndex
+            EventBus.emit("app-layout")
+        },
+        switchToFallbackLayout() {
+            this.setLayoutIndex(this.layout.fallbackIndex)
+            this.setupWindowZoom()
+        },
         presetThemes() {
             const { getPresetThemes } = useThemeStore()
             return getPresetThemes()
@@ -109,6 +128,11 @@ export const useSettingStore = defineStore('setting', {
         },
         currentFontSize() {
             return this.common.fontSize
+        },
+        setupWindowZoom(noResize) {
+            const zoom = this.common.winZoom
+            if (ipcRenderer) ipcRenderer.send("app-zoom", { zoom, noResize })
+            EventBus.emit("app-zoom", zoom)
         },
     }
 })
