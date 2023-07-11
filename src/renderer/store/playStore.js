@@ -109,9 +109,7 @@ export const usePlayStore = defineStore('play', {
         playTrackDirectly(track) {
             this.__resetPlayState()
             let playEventName = 'track-play'
-            if (this.isDefaultFMRadioType(track)) { //FM广播, 默认Live Stream
-                playEventName = 'radio-play'
-            } else if (!Track.hasUrl(track)) {   //普通歌曲
+            if (!Track.hasUrl(track)) {   //普通歌曲
                 playEventName = 'track-changed'
             }
             EventBus.emit(playEventName, track)
@@ -125,6 +123,43 @@ export const usePlayStore = defineStore('play', {
             }
             this.playingIndex = index
             this.playTrackDirectly(track)
+        },
+        playPrevTrack() {
+            const maxSize = this.queueTracksSize
+            if (maxSize < 1) return
+            switch (this.playMode) {
+                case PLAY_MODE.REPEAT_ALL:
+                    --this.playingIndex //先减1 
+                    this.playingIndex = this.playingIndex < 0 ? maxSize - 1 : this.playingIndex
+                    break
+                case PLAY_MODE.REPEAT_ONE:
+                    break
+                case PLAY_MODE.RANDOM:
+                    break
+            }
+            this.__validPlayingIndex()
+            this.playTrackDirectly(this.currentTrack)
+        },
+        playNextTrack() {
+            const maxSize = this.queueTracksSize
+            if (maxSize < 1) return
+            switch (this.playMode) {
+                case PLAY_MODE.REPEAT_ALL:
+                    this.playingIndex = ++this.playingIndex % maxSize
+                    break
+                case PLAY_MODE.REPEAT_ONE:
+                    break
+                case PLAY_MODE.RANDOM:
+                    this.playingIndex = Math.ceil(Math.random() * maxSize)
+                    break
+            }
+            this.__validPlayingIndex()
+            this.playTrackDirectly(this.currentTrack)
+        },
+        __validPlayingIndex() {
+            const maxSize = this.queueTracksSize
+            this.playingIndex = this.playingIndex > 0 ? this.playingIndex : 0
+            this.playingIndex = this.playingIndex < maxSize ? this.playingIndex : (maxSize - 1)
         },
     }
 })
