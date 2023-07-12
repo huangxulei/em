@@ -38,9 +38,9 @@ const resetPlayState = (ignore) => {
 
 /* EventBus事件 */
 
-EventBus.on('track-play', track => {
-    traceRecentTrack(track)
-})
+// EventBus.on('track-play', track => {
+//     traceRecentTrack(track)
+// })
 
 EventBus.on('track-state', state => {
     setPlayState(state)

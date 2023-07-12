@@ -59,8 +59,128 @@ export class Player {
             onplay: function () {
                 self.retry = 0
                 self.notifyStateChanged(PLAY_STATE.PLAYING)
+            },
+            onpause: function () {
+                self._stopAnimationFrame()
+                self.notifyStateChanged(PLAY_STATE.PAUSE)
+            },
+            onend: function () {
+                self.notifyStateChanged(PLAY_STATE.END)
+            },
+            onseek: function () {
+                //重置动画帧
+                self._rewindAnimationFrame(self._step.bind(self))
+            },
+            onloaderror: function () {
+                self._retryPlay(1)
+            },
+            onplayerror: function () {
+                self._retryPlay(1)
             }
         })
+        this._tryUnlockHowlAudios()
+        this.currentTime = 0
+        this.notifyStateChanged(PLAY_STATE.INIT)
+        return this.sound
+    }
+
+    getSound() {
+        return this._isTrackAvailable() ? this.sound : null
+    }
+
+    play() {
+        const sound = this.getSound()
+        if (sound) sound.play()
+    }
+
+    pause() {
+        const sound = this.getSound()
+        if (sound) sound.pause()
+    }
+
+    togglePlay() {
+        const sound = this.getSound()
+        if (!sound) {
+            this._retryPlay(1)
+            return
+        }
+        if (sound.playing()) {
+            sound.pause()
+        } else {
+            sound.play()
+        }
+    }
+
+    stop() {
+        const sound = this.getSound()
+        if (sound) {
+            sound.stop()
+            sound.unload()
+        }
+    }
+
+    setCurrent(track) {
+        this.stop()
+        this.currentTrack = track
+        this.createSound()
+    }
+
+    playTrack(track) {
+        this.setCurrent(track)
+        this.play()
+    }
+
+    restore(track) {
+        this.setCurrent(track)
+    }
+
+    volume(value) {
+        Howler.volume(value)
+    }
+
+    seek(percent) {
+        const sound = this.getSound()
+        if (!sound || !sound.playing()) return
+        const duration = sound.duration()
+        if (duration) {
+            sound.seek(Math.min(duration * percent, duration))
+        }
+    }
+
+    _step() {
+        const sound = this.getSound()
+        if (!sound) return
+        if (!sound.playing() && this.playState != PLAY_STATE.PLAYING) {
+            this._stopAnimationFrame()
+            return
+        }
+        this.currentTime = sound.seek() || 0
+    }
+
+    on(event, handler) {
+        EventBus.on(event, handler)
+        return this
+    }
+
+    _tryUnlockHowlAudios() {
+        const audios = Howler._html5AudioPool
+        // Unlock CORS
+        if (audios) audios.forEach(audio => audio.crossOrigin = 'anonymous')
+    }
+
+    _notifyError(isRetry) {
+        const { currentTrack: track, currentTime } = this
+        this.notify('track-error', { retry: isRetry, track, currentTime })
+    }
+
+    _retryPlay(maxRetry) {
+        const isRetry = this.retry < maxRetry
+        this._notifyError(isRetry)
+        if (isRetry) {
+            ++this.retry
+        } else {
+            this.retry = 0
+        }
     }
 
     notify(event, args) {
