@@ -156,5 +156,17 @@ export const useAppCommonStore = defineStore('appCommon', {
         maximize() {
             if (ipcRenderer) ipcRenderer.send('app-max')
         },
+        setExploreMode(index) {
+            if (!index || index < 0) index = 0
+            this.exploreModeIndex = index % this.exploreModeLength
+        },
+        nextExploreMode() {
+            const length = this.exploreModeLength
+            if (this.exploreModeIndex == length - 2) {
+                this.setExploreMode(0)
+            } else {
+                this.setExploreMode(this.exploreModeIndex + 1)
+            }
+        },
     }
 })

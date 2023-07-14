@@ -74,7 +74,12 @@ export const useSettingStore = defineStore('setting', {
             quality: {
                 index: 0
             }
-        }
+        },
+        /* 菜单栏、Windows平台为系统托盘 */
+        tray: {
+            show: false, //是否在菜单栏显示
+            showOnMinimized: false, //是否最小化到菜单栏
+        },
     }),
     getters: {
         isDefaultClassicLayout() {
@@ -133,6 +138,9 @@ export const useSettingStore = defineStore('setting', {
             const zoom = this.common.winZoom
             if (ipcRenderer) ipcRenderer.send("app-zoom", { zoom, noResize })
             EventBus.emit("app-zoom", zoom)
+        },
+        isHideToTrayOnMinimized() {
+            return this.tray.showOnMinimized
         },
     }
 })
