@@ -3,23 +3,26 @@ import { watch, ref, onMounted } from 'vue';
 const props = defineProps({
     value: Number, //0.0 - 1.0
     disable: Boolean,
-    disableScroll: Boolean,
-    disableOptimize: Boolean,
-    onSeek: Function,
-    onScroll: Function,
-    onScrollFinish: Function,
-    onDragStart: Function,
-    onDragMove: Function,
-    onDragRelease: Function
+    onSeek: Function
 })
 
 const sliderCtlRef = ref(null)
 const progressRef = ref(null)
 const thumbRef = ref(null)
-let onDrag = ref(false)
 let value = parseFloat(props.value).toFixed(2)
 
+const seekProgress = (event) => {
+    //改变ui
+    if (thumbRef.value.contains(event.target)) {
+        updateProgressByDeltaWidth(event.offsetX)
+    } else {
+        updateProgressByWidth(event.offsetX)
+    }
+    if (props.onSeek) props.onSeek(value)//改变实际声音
+}
+
 const updateProgress = (percent) => {
+    //ui改变
     percent = percent * 100
     percent = percent > 0 ? percent : 0
     percent = percent < 100 ? percent : 100
@@ -28,10 +31,31 @@ const updateProgress = (percent) => {
     value = (percent / 100).toFixed(2)
 }
 
+const updateProgressByWidth = (width) => {
+    const totalWidth = sliderCtlRef.value.offsetWidth
+    let percent = width / totalWidth
+    updateProgress(percent)
+}
+
+const updateProgressByDeltaWidth = (delta) => {
+    if (delta == 0) return
+    const totalWidth = sliderCtlRef.value.offsetWidth
+    const oPercent = parseFloat(progressRef.value.style.width.replace('%', '')) / 100
+    if (isNaN(oPercent)) return
+    let oWidth = totalWidth * oPercent
+    updateProgressByWidth(oWidth + delta)
+}
+
+//快捷操作 改变value 音量 0 1 静音 最大
+const toggleProgress = () => {
+    updateProgress(value > 0 ? 0 : 1)
+    return value
+}
+
 watch(() => props.value, (nv, ov) => {
     updateProgress(nv, ov)
 })
-
+//初始化 value 0.5
 onMounted(() => updateProgress(props.value))
 
 //对外提供API

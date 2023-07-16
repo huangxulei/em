@@ -161,5 +161,18 @@ export const usePlayStore = defineStore('play', {
             this.playingIndex = this.playingIndex > 0 ? this.playingIndex : 0
             this.playingIndex = this.playingIndex < maxSize ? this.playingIndex : (maxSize - 1)
         },
+        updateVolume(value) {
+            value = parseFloat(value)
+            value = value > 0 ? value : 0
+            value = value < 1 ? value : 1
+            this.volume = value
+            EventBus.emit("volume-set", value)
+        },
+        switchPlayMode() {
+            this.playMode = ++this.playMode % 3
+        },
+        setAutoPlaying(value) {
+            this.isAutoPlaying = value
+        }
     }
 })

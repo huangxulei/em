@@ -109,6 +109,9 @@ const bootstrapTrack = (track) => {
     })
 }
 
+provide('player', {
+    mmssCurrentTime,
+})
 
 </script>
 <template></template>

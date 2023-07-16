@@ -168,5 +168,10 @@ export const useAppCommonStore = defineStore('appCommon', {
                 this.setExploreMode(this.exploreModeIndex + 1)
             }
         },
+        hideAllCategoryViews() {
+            this.hidePlaylistCategoryView()
+            this.hideArtistCategoryView()
+            this.hideRadioCategoryView()
+        }
     }
 })

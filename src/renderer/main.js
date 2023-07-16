@@ -1,16 +1,30 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-
-import { createPinia } from 'pinia'
+//Pinia
+import { createPinia } from 'pinia';
 import piniaPersist from 'pinia-plugin-persist'
+//Router
+import { router } from './route/router';
+//LazyLoad
+import VueLazyLoad from 'vue3-lazyload';
+//播放器
+import { Player } from '../common/Player';
+//Components
+import ProgressBar from './components/ProgressBar.vue';
+import SliderBar from './components/SliderBar.vue';
+import VolumeBar from './components/VolumeBar.vue';
+import AudioTime from './components/AudioTime.vue';
+import PlayControl from './components/PlayControl.vue';
 
-import { router } from './router/router'
-import VueLazyLoad from 'vue3-lazyload'
-
+//状态管理
 const pinia = createPinia()
 pinia.use(piniaPersist)
 
-const app = createApp(App)
+//播放器：初始化并配置
+Player.initAndSetup()
+
+//应用：创建、配置
+const app = createApp(App);
 //全局异常处理器
 app.config.errorHandler = (err, vm, info) => {
     // 处理错误
@@ -18,13 +32,23 @@ app.config.errorHandler = (err, vm, info) => {
     //暂时仅需捕获，以免程序崩溃，其他不用特别处理
 }
 
-app.use(pinia).use(router).use(VueLazyLoad, {
-    loading: 'default_cover.png',
-    error: 'default_cover.png',
-    log: false,
-    lifecycle: {
-        error: (el) => {
-            //console.log(el)
+app.use(pinia)
+    .use(router)
+    .use(VueLazyLoad, {
+        loading: 'default_cover.png',
+        error: 'default_cover.png',
+        log: false,
+        lifecycle: {
+            error: (el) => {
+                //console.log(el)
+            }
         }
-    }
-}).mount('#app')
+    })
+    //Components
+    //自定义
+    .component('SliderBar', SliderBar)
+    .component('ProgressBar', ProgressBar)
+    .component('VolumeBar', VolumeBar)
+    .component('AudioTime', AudioTime)
+    .component('PlayControl', PlayControl)
+    .mount('#app')
