@@ -1,5 +1,7 @@
 <script setup>
 
 </script>
-<template></template>
+<template>
+    <div> 广场</div>
+</template>
 <style scoped></style>

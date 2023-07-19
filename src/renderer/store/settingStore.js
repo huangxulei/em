@@ -82,6 +82,10 @@ export const useSettingStore = defineStore('setting', {
         },
     }),
     getters: {
+        isDefaultLayout() { //默认布局，目前包含2种
+            const index = this.layout.index
+            return index == 0 || index == 1
+        },
         isDefaultClassicLayout() {
             return this.layout.index == 1
         },
@@ -108,7 +112,7 @@ export const useSettingStore = defineStore('setting', {
             const { getPresetThemes } = useThemeStore()
             return getPresetThemes()
         },
-        getCurrentTheme() {
+        getCurrentTheme() {//获取当前样式css主题
             const { getTheme } = useThemeStore()
             const { type, index } = this.theme
             return getTheme(type, index)

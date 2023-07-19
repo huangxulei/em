@@ -1,13 +1,11 @@
 <script setup>
-import { storeToRefs } from 'pinia';
 import { onMounted, watch } from 'vue';
 import CssReset from './CssReset.vue'
 import CssCommon from './CssCommon.vue'
 import EventBus from '../common/EventBus'
 import { useSettingStore } from './store/settingStore';
 
-const { getCurrentTheme, setupFontFamily, setupFontWeight, allFontSizeLevels,
-    currentFontSizeLevel, currentFontSize } = useSettingStore()
+const { getCurrentTheme, setupFontFamily, setupFontWeight, currentFontSize } = useSettingStore()
 const updateFontFamily = (value) => {
     const fontFamily = value.trim()
     document.documentElement.style.setProperty('font-family', fontFamily)

@@ -1,6 +1,5 @@
-<template>
-</template>
-
+<!-- 格式化css -->
+<template></template>
 <style>
 * {
   margin: 0px;

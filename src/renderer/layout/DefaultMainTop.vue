@@ -2,7 +2,6 @@
 import { inject } from 'vue'
 import PlayMeta from '../components/PlayMeta.vue';
 
-
 </script>
 <template>
     <div class="default-main-top">

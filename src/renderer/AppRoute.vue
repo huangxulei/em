@@ -9,7 +9,8 @@ import { usePlatformStore } from './store/platformStore';
 import { useAppCommonStore } from './store/appCommonStore'
 import { useSettingStore } from './store/settingStore'
 
-const { setExploreMode, setArtistExploreMode, setRadioExploreMode, setUserHomeExploreMode, updateCurrentPlatformByCode } = usePlatformStore()
+const { setExploreMode, setArtistExploreMode, setRadioExploreMode,
+    setUserHomeExploreMode, updateCurrentPlatformByCode } = usePlatformStore()
 const { exploreModeCode, isUserHomeMode } = storeToRefs(useAppCommonStore())
 const { hidePlayingView, hideVideoPlayingView } = useAppCommonStore()
 const { isSimpleLayout } = storeToRefs(useSettingStore())
@@ -36,8 +37,6 @@ const autoSwitchExploreMode = (to) => {
         setRadioExploreMode()
     } else if (path.includes('/userhome')) {
         setUserHomeExploreMode()
-    } else {
-        //setExploreMode(0)
     }
 }
 

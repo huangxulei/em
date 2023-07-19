@@ -89,7 +89,6 @@ const switchExploreMode = () => {
                             </g>
                         </g>
                     </svg>
-                    -->
                     <span>万千歌手</span>
                 </div>
                 <div class="mode-item" v-show="isRadioMode" @click="switchExploreMode">
