@@ -20,6 +20,7 @@ export const useAppCommonStore = defineStore('appCommon', {
         //探索模式，歌单、歌手
         exploreModes: ['playlists', 'artists', 'radios', 'userhome'],
         exploreModeIndex: 0,
+        exploreModeActiveStates: [true, true, true, false],
         //通用通知
         commonNotificationShow: false,
         commonNotificationText: null,
@@ -84,6 +85,15 @@ export const useAppCommonStore = defineStore('appCommon', {
             return (type) => {
                 return this.randomMusicTypeCodes.includes(type)
             }
+        },
+        isExploreModeEnable() {
+            return (exploreMode) => {
+                const index = this.exploreModes.findIndex(item => (item == exploreMode))
+                return this.exploreModeActiveStates[index]
+            }
+        },
+        isRadioModeEnable() {
+            return this.isExploreModeEnable('radios')
         }
     },
     actions: {
@@ -160,6 +170,18 @@ export const useAppCommonStore = defineStore('appCommon', {
             if (!index || index < 0) index = 0
             this.exploreModeIndex = index % this.exploreModeLength
         },
+        setPlaylistExploreMode() {
+            this.setExploreMode(0)
+        },
+        setArtistExploreMode() {
+            this.setExploreMode(1)
+        },
+        setRadioExploreMode() {
+            this.setExploreMode(2)
+        },
+        setUserHomeExploreMode() {
+            this.setExploreMode(3)
+        },
         nextExploreMode() {
             const length = this.exploreModeLength
             if (this.exploreModeIndex == length - 2) {
@@ -172,6 +194,41 @@ export const useAppCommonStore = defineStore('appCommon', {
             this.hidePlaylistCategoryView()
             this.hideArtistCategoryView()
             this.hideRadioCategoryView()
-        }
+        },
+        setCommonNotificationType(type) {
+            this.commonNotificationType = type || 0
+        },
+        showCommonNotification(text) {
+            //没有内容就不显示
+            if (!text || typeof (text) != 'string' || text.trim().length < 1) return
+            this.commonNotificationText = text
+            this.commonNotificationShow = true
+        },
+        hideCommonNotification() {
+            this.commonNotificationShow = false
+            this.commonNotificationText = null
+            this.commonNotificationImportant = false
+            this.setCommonNotificationType(-1)
+        },
+        doToast(text, type, callback, delay) {
+            if (toastTimer) clearTimeout(toastTimer)
+            this.showCommonNotification(text)
+            this.setCommonNotificationType(type)
+            toastTimer = setTimeout(() => {
+                this.hideCommonNotification()
+                try {
+                    if (callback) callback()
+                } catch (error) {
+                    console.log(error)
+                }
+            }, (delay || 1500))
+        },
+        showToast(text, callback, delay) {
+            if (this.commonNotificationImportant) return
+            this.doToast(text || "操作成功！", 0, callback, delay || 1688)
+        },
+        showFailToast(text, callback, delay) {
+            this.doToast(text || "操作失败！", 1, callback, delay || 2233)
+        },
     }
 })

@@ -80,6 +80,17 @@ export const useSettingStore = defineStore('setting', {
             show: false, //是否在菜单栏显示
             showOnMinimized: false, //是否最小化到菜单栏
         },
+        /* 导航栏 */
+        navigation: {
+            customPlaylistsShow: false,
+            favoritePlaylistsShow: false,
+            followArtistsShow: false,
+            radioModeShortcut: true,
+            modulesSettingShortcut: false,
+            themesShortcut: true,
+            userHomeShortcut: true,
+            simpleLayoutShortcut: true,
+        },
     }),
     getters: {
         isDefaultLayout() { //默认布局，目前包含2种
@@ -92,6 +103,21 @@ export const useSettingStore = defineStore('setting', {
         isSimpleLayout() {
             return this.layout.index == 2
         },
+        isRadioModeShortcutEnable() {
+            return this.navigation.radioModeShortcut
+        },
+        isModulesSettingShortcutEnable() {
+            return this.navigation.modulesSettingShortcut
+        },
+        isThemesShortcutEnable() {
+            return this.navigation.themesShortcut
+        },
+        isUserHomeShortcutEnable() {
+            return this.navigation.userHomeShortcut
+        },
+        isSimpleLayoutShortcutEnable() {
+            return this.navigation.simpleLayoutShortcut
+        },
     },
     actions: {
         setThemeIndex(index, type) {
@@ -102,7 +128,7 @@ export const useSettingStore = defineStore('setting', {
             this.layout.index = index || 0
             const currentIndex = this.layout.index
             if (currentIndex < 1) this.layout.fallbackIndex = currentIndex
-            EventBus.emit("app-layout")
+            //EventBus.emit("app-layout")
         },
         switchToFallbackLayout() {
             this.setLayoutIndex(this.layout.fallbackIndex)

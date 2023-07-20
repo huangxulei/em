@@ -168,11 +168,19 @@ export const usePlayStore = defineStore('play', {
             this.volume = value
             EventBus.emit("volume-set", value)
         },
+        updateVolumeByOffset(value) {
+            value = parseFloat(value)
+            this.updateVolume(this.volume + value)
+        },
+        toggleVolumeMute() {
+            this.updateVolume(this.volume > 0 ? 0.0 : 1.0)
+        },
         switchPlayMode() {
             this.playMode = ++this.playMode % 3
         },
         setAutoPlaying(value) {
             this.isAutoPlaying = value
         }
+
     }
 })

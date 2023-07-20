@@ -10,14 +10,18 @@ import { toMmss } from '../common/Times';
 import { Lyric } from '../common/Lyric';
 
 import { usePlayStore } from './store/playStore'
-import { useSettingStore } from './store/settingStore';
+import { useAppCommonStore } from './store/appCommonStore';
 import { usePlatformStore } from './store/platformStore'
+import { useSettingStore } from './store/settingStore';
 
 const ipcRenderer = useIpcRenderer()
 const { currentTrack, queueTracksSize, playingIndex, playing } = storeToRefs(usePlayStore())
-const { playTrack, playNextTrack, setAutoPlaying, playPrevTrack, setPlaying, resetQueue,
-    addTracks, addTrack, playTrackDirectly, isCurrentTrack, isPlaying } = usePlayStore()
+const { playTrack, playNextTrack, setAutoPlaying, playPrevTrack, togglePlay,
+    switchPlayMode, toggleVolumeMute, updateVolumeByOffset, setPlaying, resetQueue, addTracks,
+    addTrack, playTrackDirectly, isCurrentTrack, isPlaying } = usePlayStore()
 const { getVendor, isLocalMusic } = usePlatformStore()
+const { playingViewShow, videoPlayingViewShow, playingViewThemeIndex } = storeToRefs(useAppCommonStore())
+const { togglePlaybackQueueView, toggleVideoPlayingView, showFailToast } = useAppCommonStore()
 
 const playState = ref(PLAY_STATE.NONE)
 const setPlayState = (value) => playState.value = value
@@ -35,6 +39,28 @@ const resetPlayState = (ignore) => {
     progressState.value = 0
     if (!ignore) setPlayState(PLAY_STATE.NONE)
 }
+
+//播放进度
+const seekTrack = (percent) => {
+    //清除预备状态
+    mmssPreseekTime.value = null
+
+    if (isPlaying()) {
+        seekTrackDirectly(percent)
+    } else { //非播放状态
+        markTrackSeekPending(percent)
+        //播放歌曲
+        if (playState.value == PLAY_STATE.PAUSE) {
+            togglePlay()
+        } else {
+            playTrackDirectly(currentTrack.value)
+        }
+    }
+    //setTimeout(() => seekTrackDirectly(percent), delay)
+}
+
+const seekTrackDirectly = (percent) => EventBus.emit('track-seek', percent)
+const markTrackSeekPending = (percent) => EventBus.emit('track-markSeekPending', percent)
 
 /* EventBus事件 */
 
@@ -108,8 +134,25 @@ const bootstrapTrack = (track) => {
         resolve(track)
     })
 }
+/* 播放歌单 */
+const playPlaylist = async (playlist, text, traceId) => {
+    try {
+        doPlayPlaylist(playlist, text, traceId)
+    } catch (error) {
+        console.log(error)
+        if (traceId && !isCurrentTraceId(traceId)) return
+        showFailToast('网络异常！请稍候重试')
+        return
+    }
+}
+
+//播放歌单
+const doPlayPlaylist = async (playlist, text, traceId) => {
+    if (traceId && !isCurrentTraceId(traceId)) return
+}
 
 provide('player', {
+    seekTrack, playPlaylist, playAlbum, playMv, addAndPlayTracks, loadLyric,
     mmssCurrentTime,
 })
 

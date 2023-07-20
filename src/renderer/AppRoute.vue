@@ -12,7 +12,7 @@ import { useSettingStore } from './store/settingStore'
 const { setExploreMode, setArtistExploreMode, setRadioExploreMode,
     setUserHomeExploreMode, updateCurrentPlatformByCode } = usePlatformStore()
 const { exploreModeCode, isUserHomeMode } = storeToRefs(useAppCommonStore())
-const { hidePlayingView, hideVideoPlayingView } = useAppCommonStore()
+const { setPlaylistExploreMode, hidePlayingView } = useAppCommonStore()
 const { isSimpleLayout } = storeToRefs(useSettingStore())
 const { switchToFallbackLayout } = useSettingStore()
 /* 全局Router设置  */
@@ -63,7 +63,6 @@ const highlightPlatform = (to) => {
 
 const hideRelativeComponents = (to) => {
     hidePlayingView()
-    hideVideoPlayingView()
 }
 
 setupRouter()
@@ -93,10 +92,45 @@ const visitRoute = (route) => {
     })
 }
 
+const createCommonRoute = (toPath, onRouteReady) => ({
+    path: toPath,
+    onRouteReady,
+    //不完全等价 router.beforeResovle()
+    beforeRoute: (toPath) => {
+        hideRelativeComponents()
+        if (isSimpleLayout.value) switchToFallbackLayout()
+        if (!toPath.includes('/artist/')) hidePlaybackQueueView()
+        if (toPath.includes('/theme') ||
+            toPath.includes('/search') ||
+            toPath.includes('/setting')) {
+            if (isUserHomeMode.value) setPlaylistExploreMode()
+        }
+        //EventBus.emit('app-beforeRoute', toPath)
+    }
+})
+
+const visitCommonRoute = (route) => {
+    return visitRoute(createCommonRoute(route))
+}
+
 provide('appRoute', {
     currentRoutePath, visitRoute,
     backward: () => router.back(),
     forward: () => router.forward(),
+    visitHome: () => (visitCommonRoute('/')),
+    visitThemes: () => (visitCommonRoute('/themes')),
+    visitUserHome: () => (visitCommonRoute('/userhome/all')),
+    visitSetting: () => (visitCommonRoute('/setting')),
+    visitSearch: (keyword) => (visitCommonRoute(`/search/${keyword}`)),
+    visitLocalMusic: () => (visitCommonRoute('/playlists/local')),
+    visitPlaylistSquare: (platform) => (visitCommonRoute(`/playlists/square/${platform}`)),
+    visitPlaylist: (platform, id) => {
+        const exploreMode = resolveExploreMode()
+        if (platform === 'local') {
+            return visitCommonRoute(`/${exploreMode}/local/${id}`)
+        }
+        return visitCommonRoute(`/${exploreMode}/playlist/${platform}/${id}`)
+    },
 })
 </script>
 <template>
