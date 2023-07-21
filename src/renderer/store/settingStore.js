@@ -103,6 +103,9 @@ export const useSettingStore = defineStore('setting', {
         isSimpleLayout() {
             return this.layout.index == 2
         },
+        getWindowZoom() {
+            return this.common.winZoom
+        },
         isRadioModeShortcutEnable() {
             return this.navigation.radioModeShortcut
         },

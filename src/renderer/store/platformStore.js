@@ -153,6 +153,13 @@ export const usePlatformStore = defineStore('platform', {
                 return playlistPlatforms
             }
         },
+        activePlatforms() {
+            return (scope) => {
+                const { filterActiveModulesPlatforms } = useSettingStore()
+                const { exploreModeCode } = useAppCommonStore()
+                return filterActiveModulesPlatforms(this.platforms(scope), scope || exploreModeCode)
+            }
+        },
         currentPlatform() {
             return this.platforms()[this.currentPlatformIndex]
         },

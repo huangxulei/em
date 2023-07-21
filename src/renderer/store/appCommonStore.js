@@ -157,6 +157,12 @@ export const useAppCommonStore = defineStore('appCommon', {
         toggleCoverMask() {
             this.coverMaskShow = !this.coverMaskShow
         },
+        setCurrentTraceId(id) {
+            this.currentTraceId = id
+        },
+        isCurrentTraceId(id) {
+            return this.currentTraceId == id
+        },
         quit() {
             if (ipcRenderer) ipcRenderer.send('app-quit')
         },

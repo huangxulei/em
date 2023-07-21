@@ -21,7 +21,7 @@ const { playTrack, playNextTrack, setAutoPlaying, playPrevTrack, togglePlay,
     addTrack, playTrackDirectly, isCurrentTrack, isPlaying } = usePlayStore()
 const { getVendor, isLocalMusic } = usePlatformStore()
 const { playingViewShow, videoPlayingViewShow, playingViewThemeIndex } = storeToRefs(useAppCommonStore())
-const { togglePlaybackQueueView, toggleVideoPlayingView, showFailToast } = useAppCommonStore()
+const { togglePlaybackQueueView, toggleVideoPlayingView, showFailToast, isCurrentTraceId, showToast } = useAppCommonStore()
 
 const playState = ref(PLAY_STATE.NONE)
 const setPlayState = (value) => playState.value = value
@@ -149,6 +149,46 @@ const playPlaylist = async (playlist, text, traceId) => {
 //播放歌单
 const doPlayPlaylist = async (playlist, text, traceId) => {
     if (traceId && !isCurrentTraceId(traceId)) return
+    const { id, platform } = playlist
+    if (Playlist.isFMRadioType(playlist)) { //FM广播电台
+        showToast(text || '即将为您收听电台')
+        const track = playlist.data[0]
+        playTrack(track)
+        return
+    } else if (Playlist.isNormalRadioType(playlist)) { //歌单电台
+        //提示前置，避免因网络卡顿导致用户多次请求
+        showToast(text || '即将为您播放电台')
+        // playNextPlaylistRadioTrack(platform, id, traceId)
+        return
+    } else if (Playlist.isNormalType(playlist)
+        || Playlist.isAnchorRadioType(playlist)) {
+        let maxRetry = 3, retry = 0
+        while (!playlist.data || playlist.data.length < 1) {
+            if (traceId && !isCurrentTraceId(traceId)) return
+            if (++retry > maxRetry) return
+            //重试一次加载数据
+            const vendor = getVendor(platform)
+            if (!vendor || !vendor.playlistDetail) return
+            playlist = await vendor.playlistDetail(id, 0, 1000, 1)
+        }
+    }
+    if (!playlist.data || playlist.data.length < 1) {
+        const failMsg = Playlist.isCustomType(playlist) ? '歌单里还没有歌曲'
+            : '网络异常！请稍候重试'
+        if (traceId && !isCurrentTraceId(traceId)) return
+        showFailToast(failMsg)
+        return
+    }
+    addAndPlayTracks(playlist.data, true, text || '即将为您播放歌单', traceId)
+}
+
+//添加到播放列表，并开始播放
+const addAndPlayTracks = (tracks, needReset, text, traceId) => {
+    if (traceId && !isCurrentTraceId(traceId)) return
+    if (needReset) resetQueue()
+    showToast(text || "即将为您播放全部！")
+    addTracks(tracks)
+    playNextTrack()
 }
 
 provide('player', {

@@ -55,5 +55,11 @@ export class Playlist {
         return Playlist._assertType(item, Playlist.ANCHOR_RADIO_TYPE)
     }
 
+    static isCustomType(item) {
+        const id = toTrimString(item.id)
+        return id.startsWith(Playlist.CUSTOM_ID_PREFIX)
+            //下面写法为兼容旧版本数据
+            || (id.length == 16 && !item.platform)
+    }
 
 }
