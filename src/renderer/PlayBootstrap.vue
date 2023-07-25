@@ -197,5 +197,7 @@ provide('player', {
 })
 
 </script>
-<template></template>
+<template>
+    <slot></slot>
+</template>
 <style scoped></style>

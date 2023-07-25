@@ -20,9 +20,9 @@ const setupLayout = (isInit) => {
         channel = 'app-layout-simple'
     } else {
         currentAppLayout.value = DefaultLayout
-        EventBus.emit(channel)
+        //EventBus.emit(channel)
     }
-    if (ipcRenderer) ipcRenderer.send(channel, { zoom: getWindowZoom.value, isInit })
+    //if (ipcRenderer) ipcRenderer.send(channel, { zoom: getWindowZoom.value, isInit })
 }
 
 const restoreSetting = () => {
@@ -36,7 +36,6 @@ const initialize = () => {
 
 //直接在setup()时初始化，不需要等待其他生命周期
 initialize()
-
 
 </script>
 <template>

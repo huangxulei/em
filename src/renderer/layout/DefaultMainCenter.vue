@@ -3,6 +3,11 @@ import { onActivated, watch, onMounted, shallowRef } from 'vue';
 import { storeToRefs } from 'pinia'
 import { useAppCommonStore } from '../store/appCommonStore';
 import { useSettingStore } from '../store/settingStore';
+import DefaultMainContent from './DefaultMainContent.vue'
+import ClassicMainTop from './ClassicMainTop.vue'
+import ClassicMainBottom from './ClassicMainBottom.vue'
+import DefaultMainTop from './DefaultMainTop.vue'
+import DefaultMainBottom from './DefaultMainBottom.vue'
 
 const { isDefaultLayout, isDefaultClassicLayout } = storeToRefs(useSettingStore())
 

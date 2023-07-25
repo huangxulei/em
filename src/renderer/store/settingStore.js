@@ -167,10 +167,18 @@ export const useSettingStore = defineStore('setting', {
         currentFontSize() {
             return this.common.fontSize
         },
-        setupWindowZoom(noResize) {
+        setupWindowZoom(noResize) {//noResize 无意义
             const zoom = this.common.winZoom
             if (ipcRenderer) ipcRenderer.send("app-zoom", { zoom, noResize })
             EventBus.emit("app-zoom", zoom)
+        },
+        setWindowZoom(value) {//缩放比例
+            if (!value) return
+            const zoom = Number(value || 85)
+            if (zoom < 50 || zoom > 300) return//控制缩放大小
+            if (this.common.winZoom == zoom) return//如果跟之前一样
+            this.common.winZoom = zoom
+            this.setupWindowZoom()
         },
         isHideToTrayOnMinimized() {
             return this.tray.showOnMinimized
