@@ -70,6 +70,14 @@ export const useSettingStore = defineStore('setting', {
             fontSizeLevel: 3,
             fontSize: 17.5
         },
+        modules: {  //功能模块
+            off: {  //关闭列表
+                playlists: [],
+                artists: [],
+                radios: [],
+                search: []
+            }
+        },
         track: {
             quality: {
                 index: 0
