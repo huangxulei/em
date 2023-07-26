@@ -1,6 +1,6 @@
 <script setup>
-import { storeToRefs } from 'pinia';
 import { onMounted, inject, shallowRef, provide, computed } from 'vue'
+import { storeToRefs } from 'pinia';
 import Mousetrap from 'mousetrap';
 import Themes from './Themes.vue'
 import DefaultLayout from './layout/DefaultLayout.vue'
@@ -40,9 +40,7 @@ initialize()
 </script>
 <template>
     <Themes>
-        <keep-alive :max="2">
-            <component :is="currentAppLayout"> </component>
-        </keep-alive>
+        <component :is="currentAppLayout"> </component>
         <slot></slot>
     </Themes>
 </template>

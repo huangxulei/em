@@ -58,9 +58,33 @@ export const toTrimString = (value) => {
     return (value || '').toString().trim()
 }
 
+export const toLowerCaseTrimString = (value) => {
+    return toTrimString(value).toLowerCase()
+}
+
 export const isBlank = (text) => {
     return toTrimString(text).length < 1
 }
+
+/*
+export const useRgbaster = async (src, opts) => {
+    return new Promise((resolve, reject) => {
+        analyze(src, opts).then(result => {
+            let recommandColor = '#000'
+            if(!result || result.length < 1) {
+                resolve(recommandColor)
+                return
+            }
+            const { color } = result[0] //dominant color 主色
+            const rgbs = color.split('(')[1].replace(')', '').split(',')
+            const r = parseInt(rgbs[0]), g = parseInt(rgbs[1]), b = parseInt(rgbs[2])
+            //recommandColor = (r * 0.299 + g * 0.587 + b * 0.114) > 186 ? '#000' : '#fff'
+            recommandColor = (r * 0.213 + g * 0.715 + b * 0.072) > 255 / 2 ? '#000' : '#fff'
+            resolve(recommandColor)
+        })
+    })
+}
+*/
 
 //TODO 随机数不随机！
 export const nextInt = (max) => {

@@ -4,7 +4,7 @@ import App from './App.vue'
 import { createPinia } from 'pinia';
 import piniaPersist from 'pinia-plugin-persist'
 //Router
-import { router } from './route/router';
+import { router } from './router/router';
 //LazyLoad
 import VueLazyLoad from 'vue3-lazyload';
 //播放器
@@ -30,6 +30,7 @@ app.config.errorHandler = (err, vm, info) => {
     // 处理错误
     // `info` 是 Vue 特定的错误信息，比如错误所在的生命周期钩子
     //暂时仅需捕获，以免程序崩溃，其他不用特别处理
+    console.log(err)
 }
 
 app.use(pinia)

@@ -84,6 +84,12 @@ const createMainWindow = () => {
     } else {
         mainWindow.loadFile('dist/index.html')
     }
+
+    mainWindow.once('ready-to-show', () => {
+        setWindowButtonVisibility(!useCustomTrafficLight)
+        mainWindow.show()
+    })
+    return mainWindow
 }
 //electron 主进程中通过window.webContents.send向渲染进程发送消息
 const sendToRenderer = (channel, args) => {
@@ -275,7 +281,15 @@ const cleanupBeforeQuit = () => {
     cancelDownload()
 }
 
-
+//设置系统交通灯按钮可见性
+const setWindowButtonVisibility = (visible) => {
+    if (!isMacOS) return
+    try {
+        if (mainWin) mainWin.setWindowButtonVisibility(visible)
+    } catch (error) {
+        if (isDevEnv) console.log(error)
+    }
+}
 
 //启动应用
 startup()

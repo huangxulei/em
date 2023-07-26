@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import EventBus from '../../common/EventBus'
-import { useIpcRenderer, useIpcRenderer } from '../../common/Utils'
+import { useIpcRenderer } from '../../common/Utils'
 import { useThemeStore } from './themeStore'
 
 const ipcRenderer = useIpcRenderer()
@@ -121,6 +121,13 @@ export const useSettingStore = defineStore('setting', {
         isSimpleLayoutShortcutEnable() {
             return this.navigation.simpleLayoutShortcut
         },
+        filterActiveModulesPlatforms() {
+            return (platforms, scope) => {
+                if (!platforms || platforms.length < 1) return []
+                const offPlatforms = this.modules.off[scope]//
+                return platforms.filter(item => (!offPlatforms || !offPlatforms.includes(item.code || item)))
+            }
+        }
     },
     actions: {
         setThemeIndex(index, type) {
