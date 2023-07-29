@@ -17,6 +17,22 @@ const props = defineProps({
 
 const flatData = reactive([])
 
+const isDiffCate = (item, row, col) => {
+    const prevCate = currentCategoryItem.value//获取当前分类item
+    return prevCate ? (
+        prevCate.data.value != item.value
+        || prevCate.row != row
+        || prevCate.col != col) : true
+}
+
+const visitCateItem = (item, row, col, forceRefresh) => {
+    const needRefresh = isDiffCate(item, row, col) || forceRefresh
+    updateCurrentCategoryItem(item, row, col)
+    if (needRefresh) {
+        EventBus.emit("playlistSquare-refresh")
+    }
+}
+
 const getFlatData = () => {
     if (flatData.length <= 0) {
         props.data.forEach((cate, row) => {
@@ -29,6 +45,19 @@ const getFlatData = () => {
     }
     return flatData
 }
+
+const loadFirstCateData = () => {
+    const flatData = getFlatData()
+    if (!flatData || flatData.length < 1) return
+    const firstItem = flatData[0]
+    visitCateItem(firstItem, firstItem.row, firstItem.col, true)
+}
+
+//TODO 实现方式很别扭
+EventBus.on('playlistCategory-update', () => {
+    flatData.length = 0
+    loadFirstCateData()
+})
 
 </script>
 <template>

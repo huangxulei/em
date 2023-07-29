@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia'
 import EventBus from '../../common/EventBus';
 import { usePlaylistSquareStore } from '../store/playlistSquareStore';
 import PlaylistCategoryBar from '../components/PlaylistCategoryBar.vue';
+import PlaylistsControl from '../components/PlaylistsControl.vue'
 
 const { currentPlatformCode, currentCategoryCode } = storeToRefs(usePlaylistSquareStore())
 const { currentVender, currentPlatformCategories, putCategories } = usePlaylistSquareStore()
@@ -48,17 +49,40 @@ const loadCategories = async () => {
     setLoadingCategories(false)
 }
 
+const refreshData = () => {
+    loadContent()
+}
+
+const loadContent = async (noLoadingMask) => {
+    const vendor = currentVender()
+    if (!vendor || !vendor.square) return
+    if (!noLoadingMask) setLoadingContent(true)
+    const cate = currentPlatformCode.value
+    const offset = pagination.offset
+    const limit = pagination.limit
+    const page = pagination.page
+    const result = await vendor.square(cate, offset, limit, page, order)
+    if (!result) return
+    if (currentPlatformCode.value != result.platform) return
+    if (currentCategoryCode.value != result.cate) return
+    playlists.push(...result.data)
+    setLoadingContent(false)
+}
+
+
 /*-------------- 各种监听 --------------*/
 onMounted(() => {
     resetCommom()
     loadCategories()
 })
 
+EventBus.on("playlistSquare-refresh", refreshData)
 
 </script>
 <template>
     <div class="playlist-square-view" ref="squareContentRef">
         <PlaylistCategoryBar :data="categories" :loading="isLoadingCategories"></PlaylistCategoryBar>
+        <PlaylistsControl :data="playlists" :loading="isLoadingContent"></PlaylistsControl>
     </div>
 </template>
 <style scoped>
