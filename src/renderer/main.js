@@ -15,6 +15,7 @@ import SliderBar from './components/SliderBar.vue';
 import VolumeBar from './components/VolumeBar.vue';
 import AudioTime from './components/AudioTime.vue';
 import PlayControl from './components/PlayControl.vue';
+import ImageTextTile from './components/ImageTextTile.vue';
 
 //状态管理
 const pinia = createPinia()
@@ -52,4 +53,5 @@ app.use(pinia)
     .component('VolumeBar', VolumeBar)
     .component('AudioTime', AudioTime)
     .component('PlayControl', PlayControl)
+    .component('ImageTextTile', ImageTextTile)
     .mount('#app')

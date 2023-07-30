@@ -6,25 +6,18 @@ import { usePlatformStore } from '../../renderer/store/platformStore'
 const props = defineProps({
     cover: String,
     title: String,
-    subtitle: String,
-    color: String,
     playable: Boolean,
     playAction: Function,
     platform: String
 })
 
-const isChecked = ref(props.checked)
-const setChecked = (value) => {
-    isChecked.value = value
-}
 </script>
 
 <template>
     <div class="image-text-tile">
         <div class="cover-wrap">
-            <img v-lazy="cover" v-show="!color" class="cover">
-            <div class="cover" v-show="color" :style="{ background: color }"></div>
-            <div class="cover-mask" :class="{ selectable: checkbox }">
+            <img v-lazy="cover" class="cover">
+            <div class="cover-mask">
                 <div class="play-btn" v-show="playable">
                     <svg width="21" height="21" viewBox="0 0 139 139" xml:space="preserve"
                         xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -35,7 +28,6 @@ const setChecked = (value) => {
             </div>
         </div>
         <div class="title" v-html="title"></div>
-        <div class="subtitle" v-show="subtitle" v-html="subtitle"></div>
     </div>
 </template>
 

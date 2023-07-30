@@ -9,6 +9,12 @@ export const usePlaylistSquareStore = defineStore('playlistSquare', {
             row: 0,
             col: 0
         },
+        ordersMap: new Map(),
+        currentOrder: {
+            key: null,
+            value: null,
+            index: 0,
+        },
     }),
     getters: {
         currentPlatformCode(state) {
@@ -43,6 +49,35 @@ export const usePlaylistSquareStore = defineStore('playlistSquare', {
         },
         resetCurrentCategoryItem() {
             this.updateCurrentCategoryItem({ key: '默认', value: '' }, -1, -1)
+        },
+        putOrders(key, value) {
+            this.ordersMap.set(key, value)
+        },
+        putCurrentOrders(value) {
+            this.putOrders(this.currentPlatformCode, value)
+        },
+        currentPlatformOrders() {
+            return this.ordersMap.get(this.currentPlatformCode)
+        },
+        updateCurrentOrder(key, value, index) {
+            this.currentOrder.key = key
+            this.currentOrder.value = value
+            this.currentOrder.index = index
+        },
+        updateCurrentOrderByValue(value) {
+            if (!value) return
+            const pOrders = this.currentPlatformOrders()
+            if (!pOrders || pOrders.length < 1) return
+            for (var i = 0; i < pOrders.length; i++) {
+                const order = pOrders[i]
+                const { key, value: cValue } = order
+                if ((cValue + '') === (value + '')) {
+                    this.updateCurrentOrder(key, cValue, i)
+                }
+            }
+        },
+        resetOrder() {
+            this.updateCurrentOrder(null, null, 0)
         }
 
 
