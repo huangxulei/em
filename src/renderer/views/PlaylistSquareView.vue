@@ -13,7 +13,6 @@ const { currentVender, currentPlatformCategories, putCategories, putOrders, rese
 const squareContentRef = ref(null)
 //全部分类
 const categories = reactive([])
-const orders = reactive([])
 const playlists = reactive([])
 const pagination = { offset: 0, limit: 35, page: 1 }
 
@@ -28,36 +27,37 @@ const setLoadingContent = (value) => {
     isLoadingContent.value = value
 }
 
-const resetCommom = () => {
-
-}
-
 const loadCategories = async () => {
     categories.length = 0
-    orders.length = 0
     setLoadingCategories(true)
     setLoadingContent(true)
-    resetOrder()
     let cachedCates = currentPlatformCategories()
-    let cachedOrders = currentPlatformOrders()
     if (!cachedCates) {
         const vendor = currentVender()
         if (!vendor || !vendor.categories) return
         const result = await vendor.categories()
         if (!result || result.data.length < 1) return
         cachedCates = result.data
-        cachedOrders = result.orders
         if (!cachedCates) return
         putCategories(result.platform, cachedCates)
-        if (cachedOrders) putOrders(result.platform, result.orders)
     }
     categories.push(...cachedCates)
-    if (cachedOrders) orders.push(...cachedOrders)
     EventBus.emit('playlistCategory-update')
     setLoadingCategories(false)
 }
 
+const resetPagination = () => {
+    playlists.length = 0 //清空
+    pagination.offset = 0
+    pagination.page = 1
+}
+
+const resetCommom = () => {
+    resetPagination()
+}
+
 const refreshData = () => {
+    resetCommom()
     loadContent()
 }
 
@@ -69,15 +69,11 @@ const loadContent = async (noLoadingMask) => {
     const offset = pagination.offset
     const limit = pagination.limit
     const page = pagination.page
-    const order = currentOrder.value.value
     const result = await vendor.square(cate, offset, limit, page)
 
     if (!result) return
     if (currentPlatformCode.value != result.platform) return
     if (currentCategoryCode.value != result.cate) return
-    if (order != result.order && result.order) {
-        updateCurrentOrderByValue(result.order)
-    }
     playlists.push(...result.data)
     setLoadingContent(false)
 }

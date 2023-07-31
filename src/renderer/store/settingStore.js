@@ -135,6 +135,9 @@ export const useSettingStore = defineStore('setting', {
                 const offPlatforms = this.modules.off[scope]//
                 return platforms.filter(item => (!offPlatforms || !offPlatforms.includes(item.code || item)))
             }
+        },
+        isHideToTrayOnMinimized() {
+            return this.tray.showOnMinimized
         }
     },
     actions: {
@@ -194,9 +197,6 @@ export const useSettingStore = defineStore('setting', {
             if (this.common.winZoom == zoom) return//如果跟之前一样
             this.common.winZoom = zoom
             this.setupWindowZoom()
-        },
-        isHideToTrayOnMinimized() {
-            return this.tray.showOnMinimized
-        },
+        }
     }
 })

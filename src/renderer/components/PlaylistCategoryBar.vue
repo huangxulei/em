@@ -63,7 +63,7 @@ EventBus.on('playlistCategory-update', () => {
 <template>
     <div class="playlist-category-bar">
         <div v-show="!loading">
-            <svg @click.stop="toggleCategory" width="17" height="17" viewBox="0 0 29.3 29.3">
+            <svg width="17" height="17" viewBox="0 0 29.3 29.3">
                 <g id="Layer_2" data-name="Layer 2">
                     <g id="Layer_1-2" data-name="Layer 1">
                         <path
@@ -72,10 +72,10 @@ EventBus.on('playlistCategory-update', () => {
                 </g>
             </svg>
             <template v-for="item in getFlatData()" v-show="data.length > 0">
-                <span :class="{
-                    active: (item.row == currentCategoryItem.row
-                        && item.col == currentCategoryItem.col)
-                }" v-html="item.key" :data="item.value"></span>
+                <span @click="visitCateItem(item, item.row, item.col)" :class="{
+                    active: (item.row == currentCategoryItem.row && item.col == currentCategoryItem.col)
+                }" v-html="item.key" :data="item.value">
+                </span>
             </template>
         </div>
     </div>
