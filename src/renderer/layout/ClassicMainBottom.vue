@@ -17,7 +17,7 @@ onMounted(() => {
         <SliderBar :value="progressState" :onSeek="seekTrack">
         </SliderBar>
         <div id="play-nav">
-            <PlayMeta id="play-meta"></PlayMeta>
+            <PlayMeta id="play-meta" :hideVolumeBar="true"></PlayMeta>
             <div class="play-ctl-wrap">
                 <PlayControl></PlayControl>
             </div>

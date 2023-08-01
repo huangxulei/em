@@ -9,7 +9,7 @@ const props = defineProps({
     <div class="audio-time">
         <span class="t-current"> {{ current }}</span>
         <span class="t-sp">/</span>
-        <div class="t-duration">{{ duration }}</div>
+        <span class="t-duration">{{ duration }}</span>
     </div>
 </template>
 <style scoped>

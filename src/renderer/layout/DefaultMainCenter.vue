@@ -16,7 +16,6 @@ const currentMainTop = shallowRef(null)
 const currentMainBottom = shallowRef(null)
 
 const setupDefaultLayout = () => {
-    console.log('setupDefaultLayout')
     if (isDefaultClassicLayout.value) {//默认
         currentMainTop.value = ClassicMainTop
         currentMainBottom.value = ClassicMainBottom

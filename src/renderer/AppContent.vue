@@ -23,7 +23,7 @@ const setupLayout = (isInit) => {
         currentAppLayout.value = DefaultLayout
         EventBus.emit(channel)
     }
-    //if (ipcRenderer) ipcRenderer.send(channel, { zoom: getWindowZoom.value, isInit })
+    if (ipcRenderer) ipcRenderer.send(channel, { zoom: getWindowZoom.value, isInit })
 }
 
 const restoreSetting = () => {

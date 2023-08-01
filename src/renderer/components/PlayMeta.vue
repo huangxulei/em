@@ -9,7 +9,9 @@ import { storeToRefs } from 'pinia';
 import { Track } from '../../common/Track';
 
 const { mmssCurrentTime } = inject('player')
-
+const props = defineProps({
+    hideVolumeBar: Boolean,
+})
 const { currentTrack, volume, playing } = storeToRefs(usePlayStore())
 const { coverMaskShow } = storeToRefs(useAppCommonStore())
 const { showPlayingView, toggleCoverMask } = useAppCommonStore()
@@ -48,12 +50,12 @@ onMounted(() => {
             </div>
             <div class="time-volume-wrap">
                 <AudioTime :current="mmssCurrentTime" :duration="Track.mmssDuration(currentTrack)"></AudioTime>
-                <VolumeBar class="volume-bar" ref="volumeBarRef"></VolumeBar>
+                <VolumeBar class="volume-bar" ref="volumeBarRef" v-show="!hideVolumeBar"></VolumeBar>
             </div>
         </div>
     </div>
 </template>
-<style scoped>
+<style>
 .play-meta {
     display: flex;
     height: var(--others-playmeta-height);
@@ -63,6 +65,14 @@ onMounted(() => {
 .play-meta .title-wrap {
     width: 211px;
     margin-left: 10px;
+}
+
+.play-meta .audio-title-wrap {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-end;
+    height: 33px;
 }
 
 .play-meta .cover-wrap {
@@ -86,5 +96,93 @@ onMounted(() => {
     top: 0px;
     left: 0px;
     z-index: 1;
+}
+
+.play-meta .audio-cover {
+    /*background-color: var(--content-text-color);*/
+    background-color: var(--app-bg-color);
+}
+
+.play-meta .cover-mask {
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--app-bg-color);
+    opacity: 0.8;
+}
+
+.play-meta .cover-mask svg {
+    fill: var(--button-icon-btn-color) !important;
+}
+
+.play-meta .audio-title {
+    /*font-size: 14;*/
+    font-size: var(--content-text-subtitle-size);
+    text-align: left;
+
+    vertical-align: bottom;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 211px;
+}
+
+.play-meta .favorite-btn {
+    margin-top: 15px;
+    margin-left: 15px;
+    cursor: pointer;
+    display: none;
+}
+
+.play-meta .favorite-btn svg {
+    fill: var(--button-icon-btn-color);
+}
+
+.play-meta .favorite-btn:hover svg {
+    fill: var(--content-highlight-color);
+}
+
+.play-meta .time-volume-wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 211px;
+    /* justify-content: center; */
+}
+
+.play-meta .audio-time,
+.play-meta .volume-bar {
+    line-height: 30px;
+}
+
+.play-meta .audio-time {
+    color: var(--content-subtitle-text-color);
+    font-size: 14px;
+    font-size: var(--content-text-tip-text-size);
+    text-align: left;
+    flex: 1;
+}
+
+.play-meta .volume-bar {
+    margin-left: 10px;
+    margin-top: 3px;
+}
+
+.play-meta .volume-status {
+    width: 18px;
+    margin-top: 6px;
+}
+
+.play-meta .st-slient,
+.play-meta .st-small,
+.play-meta .st-large {
+    width: 18px;
+    height: 18px;
+}
+
+.play-meta .volume-value {
+    width: 66px;
+    margin-left: 3px;
 }
 </style>

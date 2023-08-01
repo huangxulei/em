@@ -52,6 +52,22 @@ const toggleProgress = () => {
     return value
 }
 
+//优化拖动体验
+const thumbShow = ref(false)
+let thumbHideTimer = null
+const showThumb = () => {
+    if (props.disable) return
+    if (thumbHideTimer) clearTimeout(thumbHideTimer)
+    thumbShow.value = true
+}
+
+const hideThumb = () => {
+    const delay = props.disableOptimize ? 0 : 1000
+    thumbHideTimer = setTimeout(() => {
+        thumbShow.value = false
+    }, delay)
+}
+
 watch(() => props.value, (nv, ov) => {
     updateProgress(nv, ov)
 })
@@ -65,8 +81,10 @@ defineExpose({
 })
 </script>
 <template>
-    <div class="slider-bar">
-        <div class="slider-bar-ctl" ref="sliderCtlRef" @click="seekProgress">
+    <div class="slider-bar" @mouseenter="showThumb" @mouseleave="hideThumb">
+        <div class="slider-bar-ctl"
+            :class="{ 'slider-bar-ctl-with-thumb': thumbShow, 'slider-bar-ctl-disable': disable }"
+            ref="sliderCtlRef" @click="seekProgress">
             <div class="progress" ref="progressRef"></div>
             <div class="thumb" ref="thumbRef" @mousedown="startDrag"></div>
         </div>
