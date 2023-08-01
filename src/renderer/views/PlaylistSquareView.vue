@@ -1,7 +1,8 @@
 <script setup>
-import { onActivated, onMounted, reactive, ref, watch } from 'vue'
+import { onActivated, onMounted, reactive, ref, watch, watchPostEffect } from 'vue'
 import { storeToRefs } from 'pinia'
 import EventBus from '../../common/EventBus';
+import { useAppCommonStore } from '../store/appCommonStore';
 import { usePlaylistSquareStore } from '../store/playlistSquareStore';
 import PlaylistCategoryBar from '../components/PlaylistCategoryBar.vue';
 import PlaylistsControl from '../components/PlaylistsControl.vue'
@@ -9,6 +10,8 @@ import PlaylistsControl from '../components/PlaylistsControl.vue'
 const { currentPlatformCode, currentCategoryCode, currentOrder } = storeToRefs(usePlaylistSquareStore())
 const { currentVender, currentPlatformCategories, putCategories, putOrders, resetOrder,
     currentPlatformOrders, updateCurrentOrderByValue } = usePlaylistSquareStore()
+
+const { isPlaylistMode } = storeToRefs(useAppCommonStore())
 //TODO 需要梳理优化, 前期缺少设计，现在全是坑
 const squareContentRef = ref(null)
 //全部分类
@@ -84,6 +87,15 @@ onMounted(() => {
     resetCommom()
     loadCategories()
 })
+
+watch(
+    currentPlatformCode, (nv, ov) => {
+        if (!isPlaylistMode.value) return
+        if (!nv) return
+        resetCommom()
+        loadCategories()
+    }
+)
 
 EventBus.on("playlistSquare-refresh", refreshData)
 

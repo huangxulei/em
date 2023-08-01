@@ -7,6 +7,7 @@ import DefaultLayout from './layout/DefaultLayout.vue'
 import SimpleLayout from './layout/SimpleLayout.vue'
 import { useSettingStore } from './store/settingStore'
 import { isMacOS, isWinOS, useIpcRenderer } from '../common/Utils'
+import EventBus from '../common/EventBus';
 
 const { isSimpleLayout, getWindowZoom } = storeToRefs(useSettingStore())
 const ipcRenderer = useIpcRenderer()
@@ -20,7 +21,7 @@ const setupLayout = (isInit) => {
         channel = 'app-layout-simple'
     } else {
         currentAppLayout.value = DefaultLayout
-        //EventBus.emit(channel)
+        EventBus.emit(channel)
     }
     //if (ipcRenderer) ipcRenderer.send(channel, { zoom: getWindowZoom.value, isInit })
 }
@@ -40,7 +41,9 @@ initialize()
 </script>
 <template>
     <Themes>
-        <component :is="currentAppLayout"> </component>
+        <keep-alive :max="2">
+            <component :is="currentAppLayout"> </component>
+        </keep-alive>
         <slot></slot>
     </Themes>
 </template>

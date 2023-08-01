@@ -6,9 +6,9 @@ import AppContent from './AppContent.vue';
 </script>
 <template>
     <AppRoute>
-        <!-- <PlayBootstrap>  -->
-        <AppContent></AppContent>
-        <!-- </PlayBootstrap>-->
+        <PlayBootstrap>
+            <AppContent></AppContent>
+        </PlayBootstrap>
     </AppRoute>
 </template>
 <style>

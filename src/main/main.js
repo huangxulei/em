@@ -267,6 +267,8 @@ const registryGlobalListeners = () => {
         setupTray(isShow)
     }).on('app-zoom', (e, { zoom, noResize }) => {
         setupAppWindowZoom(zoom, noResize)
+    }).on('app-layout-default', (e, { zoom, isInit }) => {
+        setupAppLayout(DEFAULT_LAYOUT, zoom, isInit)
     })
 }
 
@@ -395,6 +397,28 @@ const overrideRequest = (details) => {
     if (cross) details.requestHeaders['Cross'] = cross
 
     return details
+}
+
+
+const setupAppLayout = (layout, zoom, isInit) => {
+    appLayout = layout
+
+    zoom = Number(zoom) || 100
+    const zoomFactor = parseFloat(zoom / 100)
+    if (zoomFactor < 0.5 || zoomFactor > 3) zoomFactor = 1
+    mainWin.webContents.setZoomFactor(zoomFactor)
+
+    const { appWidth, appHeight } = appLayoutConfig[appLayout]
+    const width = parseInt(appWidth * zoomFactor), height = parseInt(appHeight * zoomFactor)
+    const isSimpleLayout = (appLayout === SIMPLE_LAYOUT)
+    const maxWidth = (isSimpleLayout ? width : 102400)
+    const maxHeight = (isSimpleLayout ? height : 102400)
+    mainWin.setMaximumSize(maxWidth, maxHeight)
+    if (isInit || isSimpleLayout) {
+        mainWin.setMinimumSize(width, height)
+        mainWin.setSize(width, height)
+    }
+    mainWin.center()
 }
 //启动应用
 startup()

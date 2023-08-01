@@ -8,6 +8,7 @@ import ClassicMainTop from './ClassicMainTop.vue'
 import ClassicMainBottom from './ClassicMainBottom.vue'
 import DefaultMainTop from './DefaultMainTop.vue'
 import DefaultMainBottom from './DefaultMainBottom.vue'
+import EventBus from '../../common/EventBus'
 
 const { isDefaultLayout, isDefaultClassicLayout } = storeToRefs(useSettingStore())
 
@@ -15,6 +16,7 @@ const currentMainTop = shallowRef(null)
 const currentMainBottom = shallowRef(null)
 
 const setupDefaultLayout = () => {
+    console.log('setupDefaultLayout')
     if (isDefaultClassicLayout.value) {//默认
         currentMainTop.value = ClassicMainTop
         currentMainBottom.value = ClassicMainBottom
@@ -25,6 +27,8 @@ const setupDefaultLayout = () => {
 }
 
 onActivated(setupDefaultLayout)
+
+EventBus.on('app-layout-default', setupDefaultLayout)
 </script>
 <template>
     <div id="default-main-center">

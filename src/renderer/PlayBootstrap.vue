@@ -192,8 +192,7 @@ const addAndPlayTracks = (tracks, needReset, text, traceId) => {
 }
 
 provide('player', {
-    seekTrack, playPlaylist, playAlbum, playMv, addAndPlayTracks, loadLyric,
-    mmssCurrentTime,
+    seekTrack, progressState, mmssCurrentTime
 })
 
 </script>
