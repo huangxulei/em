@@ -4,7 +4,9 @@
 <template>
     <div id="default-main-content">
         <router-view v-slot="{ Component }">
-            <component :is="Component" />
+            <keep-alive :max="12">
+                <component :is="Component" />
+            </keep-alive>
         </router-view>
     </div>
 </template>

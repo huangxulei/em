@@ -7,10 +7,12 @@ import { usePlatformStore } from './store/platformStore';
 import { useAppCommonStore } from './store/appCommonStore'
 import { useSettingStore } from './store/settingStore'
 
-const { setExploreMode, setArtistExploreMode, setRadioExploreMode,
-    setUserHomeExploreMode, updateCurrentPlatformByCode } = usePlatformStore()
+const { isArtistDetailVisitable, isAlbumDetailVisitable,
+    updateCurrentPlatformByCode, isLocalMusic } = usePlatformStore()
 const { exploreModeCode, isUserHomeMode } = storeToRefs(useAppCommonStore())
-const { setPlaylistExploreMode, hidePlayingView } = useAppCommonStore()
+const { setExploreMode, setArtistExploreMode, setRadioExploreMode,
+    setUserHomeExploreMode, hidePlayingView, hidePlaybackQueueView,
+    setPlaylistExploreMode, hideVideoPlayingView, } = useAppCommonStore()
 const { isSimpleLayout } = storeToRefs(useSettingStore())
 const { switchToFallbackLayout } = useSettingStore()
 /* 全局Router设置  */
@@ -18,9 +20,9 @@ const router = useRouter()
 const setupRouter = () => {
     router.beforeResolve((to, from) => {
         if (isDevEnv()) console.log("[ ROUTE ] ==>>> " + to.path)
-        // autoSwitchExploreMode(to)
-        // highlightPlatform(to)
-        // hideRelativeComponents(to)//清除所有显示的组件
+        autoSwitchExploreMode(to)
+        highlightPlatform(to)
+        hideRelativeComponents(to)//清除所有显示的组件
     })
 }
 
@@ -107,7 +109,7 @@ const createCommonRoute = (toPath, onRouteReady) => ({
 })
 
 const visitCommonRoute = (route) => {
-    return visitRoute(createCommonRoute(route))
+    return visitRoute(route)
 }
 
 setupRouter()
@@ -123,6 +125,7 @@ provide('appRoute', {
     visitLocalMusic: () => (visitCommonRoute('/playlists/local')),
     visitPlaylistSquare: (platform) => (visitCommonRoute(`/playlists/square/${platform}`)),
     visitPlaylist: (platform, id) => {
+        console.log('visitPlaylist')
         const exploreMode = resolveExploreMode()
         if (platform === 'local') {
             return visitCommonRoute(`/${exploreMode}/local/${id}`)
