@@ -16,7 +16,8 @@ import VolumeBar from './components/VolumeBar.vue';
 import AudioTime from './components/AudioTime.vue';
 import PlayControl from './components/PlayControl.vue';
 import ImageTextTile from './components/ImageTextTile.vue';
-
+import SongItem from './components/SongItem.vue';
+import SvgTextButton from './components/SvgTextButton.vue';
 //状态管理
 const pinia = createPinia()
 pinia.use(piniaPersist)
@@ -54,4 +55,6 @@ app.use(pinia)
     .component('AudioTime', AudioTime)
     .component('PlayControl', PlayControl)
     .component('ImageTextTile', ImageTextTile)
+    .component('SongItem', SongItem)
+    .component('SvgTextButton', SvgTextButton)
     .mount('#app')
