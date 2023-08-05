@@ -15,6 +15,11 @@ const props = defineProps({
     loading: Boolean
 })
 
+const toggleCategory = () => {
+    //hidePlaybackQueueView()
+    togglePlaylistCategoryView()
+}
+
 const flatData = reactive([])
 
 const isDiffCate = (item, row, col) => {
@@ -63,7 +68,7 @@ EventBus.on('playlistCategory-update', () => {
 <template>
     <div class="playlist-category-bar">
         <div v-show="!loading">
-            <svg width="17" height="17" viewBox="0 0 29.3 29.3">
+            <svg @click.stop="toggleCategory" width="17" height="17" viewBox="0 0 29.3 29.3">
                 <g id="Layer_2" data-name="Layer 2">
                     <g id="Layer_1-2" data-name="Layer 1">
                         <path

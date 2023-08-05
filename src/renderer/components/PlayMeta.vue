@@ -8,7 +8,7 @@ import { usePlatformStore } from '../store/platformStore';
 import { storeToRefs } from 'pinia';
 import { Track } from '../../common/Track';
 
-const { mmssCurrentTime } = inject('player')
+const { mmssCurrentTime, mmssPreseekTime } = inject('player')
 const props = defineProps({
     hideVolumeBar: Boolean,
 })
@@ -49,7 +49,7 @@ onMounted(() => {
                 <div class="audio-title" v-html="trackMeta(currentTrack)"></div>
             </div>
             <div class="time-volume-wrap">
-                <AudioTime :current="mmssCurrentTime" :duration="Track.mmssDuration(currentTrack)"></AudioTime>
+                <AudioTime :current="mmssPreseekTime || mmssCurrentTime" :duration="Track.mmssDuration(currentTrack)"></AudioTime>
                 <VolumeBar class="volume-bar" ref="volumeBarRef" v-show="!hideVolumeBar"></VolumeBar>
             </div>
         </div>

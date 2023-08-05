@@ -56,7 +56,6 @@ const seekTrack = (percent) => {
             playTrackDirectly(currentTrack.value)
         }
     }
-    //setTimeout(() => seekTrackDirectly(percent), delay)
 }
 
 const seekTrackDirectly = (percent) => EventBus.emit('track-seek', percent)
@@ -75,7 +74,7 @@ EventBus.on('track-state', state => {
             resetPlayState(true)
             break
         case PLAY_STATE.PLAYING:
-            setPlayState(true)
+            setPlaying(true)
             break
         case PLAY_STATE.PAUSE:
             setPlaying(false)
@@ -94,6 +93,15 @@ EventBus.on('track-changed', track => {
             playTrackDirectly(track)
         }
     })
+})
+
+EventBus.on('track-pos', secs => {
+    const track = currentTrack.value
+    const currentTime = secs * 1000
+    mmssCurrentTime.value = toMmss(currentTime)
+    currentTimeState.value = secs
+    const duration = track ? track.duration : 0
+    progressState.value = duration > 0 ? (currentTime / duration) : 0
 })
 
 const updateLyric = (track, { lyric, roma, trans }) => {
@@ -192,7 +200,9 @@ const addAndPlayTracks = (tracks, needReset, text, traceId) => {
 }
 
 provide('player', {
-    seekTrack, playPlaylist, progressState, mmssCurrentTime, addAndPlayTracks
+    seekTrack, playPlaylist, progressState, mmssCurrentTime,
+    addAndPlayTracks, mmssPreseekTime, playState,
+
 })
 
 </script>

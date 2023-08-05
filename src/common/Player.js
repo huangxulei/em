@@ -59,6 +59,7 @@ export class Player {
             onplay: function () {
                 self.retry = 0
                 self.notifyStateChanged(PLAY_STATE.PLAYING)
+                self._rewindAnimationFrame(self._step.bind(self))
             },
             onpause: function () {
                 self._stopAnimationFrame()
@@ -155,6 +156,10 @@ export class Player {
             return
         }
         this.currentTime = sound.seek() || 0
+        if (this.isStateRefreshEnabled()) this.notify('track-pos', this.currentTime)
+        this._countAnimationFrame()
+        //循环动画
+        this._rewindAnimationFrame(this._step.bind(this), true)
     }
 
     on(event, handler) {
@@ -193,6 +198,24 @@ export class Player {
         this.notify('track-state', this.playState)
     }
 
+    _countAnimationFrame() {
+        const max = this.stateRefreshFrequency || 1024
+        this.animationFrameCnt = (this.animationFrameCnt + 1) % max
+    }
+
+    isStateRefreshEnabled() {
+        return this.animationFrameCnt % this.stateRefreshFrequency == 0
+    }
+
+    _stopAnimationFrame(noReset) {
+        if (this.animationFrameId > 0) cancelAnimationFrame(this.animationFrameId)
+        if (!noReset) this.animationFrameCnt = 0
+    }
+
+    _rewindAnimationFrame(callback, noReset) {
+        this._stopAnimationFrame(noReset)
+        this.animationFrameId = requestAnimationFrame(callback)
+    }
 
 }
 

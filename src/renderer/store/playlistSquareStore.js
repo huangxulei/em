@@ -30,7 +30,7 @@ export const usePlaylistSquareStore = defineStore('playlistSquare', {
             return this.categoriesMap.get(key)
         },
         currentPlatformCategories() {
-            return this.getCategories(this.currentCategoryCode)
+            return this.getCategories(this.currentPlatformCode)
         },
         currentVender() {
             const { currentVender } = usePlatformStore()

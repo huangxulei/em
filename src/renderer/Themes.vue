@@ -143,4 +143,30 @@ onMounted(setupFontStyle)
     <CssCommon></CssCommon>
     <slot></slot>
 </template>
-<style></style>
+<style>
+.app-custom-theme-bg {
+    background-color: var(--app-bg-color);
+    background-image: var(--app-bg-image);
+}
+
+.app-custom-theme-bg .container {
+    background: var(--content-bg-color) !important;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar-thumb {
+    background: var(--others-scrollbar-color);
+    border: 1px solid var(--others-scrollbar-color);
+    width: var(--others-scrollbar-width);
+    height: 66px;
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-track-piece,
+::-webkit-scrollbar-corner,
+::-webkit-scrollbar-button,
+::-webkit-resizer {
+    background: transparent;
+}
+</style>

@@ -15,6 +15,24 @@ const { isDefaultLayout, isDefaultClassicLayout } = storeToRefs(useSettingStore(
 const currentMainTop = shallowRef(null)
 const currentMainBottom = shallowRef(null)
 
+const setCategoryViewSize = () => {
+    const mainContent = document.getElementById('default-main-content')
+    if (!mainContent) return
+
+    const playlistCategory = document.querySelector('#playlist-category-view')
+    const artistCategory = document.querySelector('#artist-category-view')
+    const radioCategory = document.querySelector('#radio-category-view')
+    const tagsCategory = document.querySelector('#tags-category-view')
+
+    const categories = [playlistCategory, artistCategory, radioCategory, tagsCategory]
+
+    const { clientHeight } = mainContent, padding = 0
+    const height = (clientHeight - padding)
+    categories.forEach(item => {
+        if (item) item.style.height = `${height}px`
+    })
+}
+
 const setupDefaultLayout = () => {
     if (isDefaultClassicLayout.value) {//默认
         currentMainTop.value = ClassicMainTop
@@ -26,6 +44,14 @@ const setupDefaultLayout = () => {
 }
 
 onActivated(setupDefaultLayout)
+
+onMounted(() => {
+    window.addEventListener('resize', event => {
+        if (!isDefaultClassicLayout.value) return
+        setCategoryViewSize()
+    })
+})
+
 
 EventBus.on('app-layout-default', setupDefaultLayout)
 </script>

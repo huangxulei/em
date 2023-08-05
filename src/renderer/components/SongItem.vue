@@ -24,6 +24,7 @@ const props = defineProps({
 })
 
 const playItem = () => {
+    console.log(props.data)
     playTrack(props.data)
 }
 

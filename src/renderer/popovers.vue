@@ -2,11 +2,13 @@
 import { onMounted, reactive, ref, shallowRef, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useAppCommonStore } from './store/appCommonStore';
-
+import { useSettingStore } from './store/settingStore';
 import Notification from './components/Notification.vue';
+import PlaylistCategoryView from './views/PlaylistCategoryView.vue';
 
 const { commonNotificationShow, commonNotificationText,
-    commonNotificationType, } = storeToRefs(useAppCommonStore())
+    commonNotificationType, playlistCategoryViewShow, } = storeToRefs(useAppCommonStore())
+const { isDefaultClassicLayout } = storeToRefs(useSettingStore())
 
 const appBackgroundScope = reactive({
     playingView: true,
@@ -21,6 +23,15 @@ const appBackgroundScope = reactive({
 </script>
 <template>
     <div id="popovers">
+
+        <!-- 浮层(Component、View)-->
+        <transition name="fade-ex">
+            <PlaylistCategoryView id="playlist-category-view"
+                :class="{ autolayout: isDefaultClassicLayout, 'app-custom-theme-bg': appBackgroundScope.categoryView }"
+                v-show="playlistCategoryViewShow">
+            </PlaylistCategoryView>
+        </transition>
+
         <!-- 通用通知 -->
         <transition>
             <Notification class="common-ntf" v-show="commonNotificationShow"
@@ -87,5 +98,20 @@ const appBackgroundScope = reactive({
     max-width: 520px;
     width: max-content !important;
     height: auto !important;
+}
+
+#playlist-category-view,
+#artist-category-view,
+#radio-category-view,
+#tags-category-view {
+    position: fixed;
+    top: 85px;
+    right: 0px;
+    width: 404px;
+    width: 40.4%;
+    z-index: 55;
+    background-color: var(--app-bg-color);
+    background-image: var(--app-bg-image);
+    box-shadow: 0px 0px 10px #161616;
 }
 </style>
