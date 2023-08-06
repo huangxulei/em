@@ -17,7 +17,6 @@ const visitItem = (item) => {
     const idValid = (typeof (id) == 'string') ? (id.trim().length > 0) : (id > 0)
     const visitable = platformValid && idValid
     if (visitable) {
-        console.log("visitable")
         visitPlaylist(platform, id)
     }
 }

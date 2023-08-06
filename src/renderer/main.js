@@ -18,6 +18,7 @@ import PlayControl from './components/PlayControl.vue';
 import ImageTextTile from './components/ImageTextTile.vue';
 import SongItem from './components/SongItem.vue';
 import SvgTextButton from './components/SvgTextButton.vue';
+import PlaybackQueueView from './views/PlaybackQueueView.vue';
 //状态管理
 const pinia = createPinia()
 pinia.use(piniaPersist)
@@ -57,4 +58,5 @@ app.use(pinia)
     .component('ImageTextTile', ImageTextTile)
     .component('SongItem', SongItem)
     .component('SvgTextButton', SvgTextButton)
+    .component('PlaybackQueueView', PlaybackQueueView)
     .mount('#app')

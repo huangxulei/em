@@ -81,7 +81,34 @@ export const useSettingStore = defineStore('setting', {
         track: {
             quality: {
                 index: 0
-            }
+            },
+            //VIP收费歌曲，是否自动切换到免费歌曲（可能来自不同平台）
+            vipTransfer: true,
+            vipFlagShow: false,
+            //歌单分类栏随机显示
+            playlistCategoryBarRandom: false,
+            playlistCategoryBarFlowBtnShow: false,
+            playbackQueueAutoPositionOnShow: false,
+            listenNumShow: false,
+            //视频播放退出后，自动继续播放歌曲
+            resumePlayAfterVideo: true,
+            //播放歌曲时，防止系统睡眠
+            playingWithoutSleeping: true,
+            //歌曲进度更新频度，默认为60，范围：1 - 1024
+            stateRefreshFrequency: 60,
+            //歌曲频谱刷新频度，默认为3，范围：1 - 256
+            spectrumRefreshFrequency: 3,
+            ////本地歌曲
+            //启用在线封面
+            useOnlineCover: true,
+            //显示音频格式
+            audioTypeFlagShow: false,
+            //扫描目录时，启用深度遍历
+            useDeeplyScanForDirectory: true,
+            //启用Dnd操作，创建本地歌单
+            useDndForCreateLocalPlaylist: true,
+            //启用Dnd操作，为本地歌单添加歌曲
+            useDndForAddLocalTracks: true,
         },
         /* 菜单栏、Windows平台为系统托盘 */
         tray: {
@@ -101,6 +128,9 @@ export const useSettingStore = defineStore('setting', {
         },
     }),
     getters: {
+        isVipTransferEnable() {
+            return this.track.vipTransfer
+        },
         isDefaultLayout() { //默认布局，目前包含2种
             const index = this.layout.index
             return index == 0 || index == 1
@@ -138,7 +168,10 @@ export const useSettingStore = defineStore('setting', {
         },
         isHideToTrayOnMinimized() {
             return this.tray.showOnMinimized
-        }
+        },
+        isPlaybackQueueAutoPositionOnShow() {
+            return this.track.playbackQueueAutoPositionOnShow
+        },
     },
     actions: {
         setThemeIndex(index, type) {

@@ -94,6 +94,26 @@ export const usePlayStore = defineStore('play', {
             if (tracks.length < 1) return
             tracks.forEach(item => this.addTrack(item));
         },
+        removeTrack(track) {
+            const index = this.findIndex(track)
+            if (index > -1) {
+                const isCurrent = (index == this.playingIndex)
+                this.queueTracks.splice(index, 1)
+                if (index <= this.playingIndex) {
+                    --this.playingIndex
+                }
+                const maxSize = this.queueTracksSize
+                if (maxSize < 1) {
+                    this.resetQueue()
+                    return
+                }
+                if (isCurrent) {
+                    if (this.playing) {
+                        this.playNextTrack()
+                    }
+                }
+            }
+        },
         resetQueue() {
             this.isAutoPlaying = false
             this.queueTracks.length = 0
@@ -110,7 +130,6 @@ export const usePlayStore = defineStore('play', {
             this.__resetPlayState()
             let playEventName = 'track-play'
             if (!Track.hasUrl(track)) {   //普通歌曲
-                console.log('ptd')
                 playEventName = 'track-changed'
             }
             EventBus.emit(playEventName, track)
@@ -183,5 +202,15 @@ export const usePlayStore = defineStore('play', {
             this.isAutoPlaying = value
         }
 
+    },
+    persist: {
+        enabled: true,
+        strategies: [
+            {
+                //key: "player",
+                storage: localStorage,
+                paths: ['playingIndex', 'playMode', 'queueTracks', 'volume']
+            }
+        ]
     }
 })

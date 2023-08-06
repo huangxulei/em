@@ -9,6 +9,7 @@ import PlaylistCategoryView from './views/PlaylistCategoryView.vue';
 const { commonNotificationShow, commonNotificationText,
     commonNotificationType, playlistCategoryViewShow, } = storeToRefs(useAppCommonStore())
 const { isDefaultClassicLayout } = storeToRefs(useSettingStore())
+const { playbackQueueViewShow } = storeToRefs(useAppCommonStore())
 
 const appBackgroundScope = reactive({
     playingView: true,
@@ -65,6 +66,12 @@ const appBackgroundScope = reactive({
                 </template>
             </Notification>
         </transition>
+
+        <transition name="fade-ex">
+            <PlaybackQueueView id="playback-queue-view" :class="{ 'app-custom-theme-bg': appBackgroundScope.playbackQueue }"
+                v-show="playbackQueueViewShow">
+            </PlaybackQueueView>
+        </transition>
     </div>
 </template>
 <style>
@@ -113,5 +120,19 @@ const appBackgroundScope = reactive({
     background-color: var(--app-bg-color);
     background-image: var(--app-bg-image);
     box-shadow: 0px 0px 10px #161616;
+}
+
+#playback-queue-view {
+    position: absolute;
+    top: 0;
+    right: 0px;
+    width: 335px;
+    max-width: 404px;
+    width: 33.5%;
+    height: 100%;
+    z-index: 99;
+    box-shadow: var(--box-shadow);
+    border-top-right-radius: var(--border-macstyle-border-radius);
+    border-bottom-right-radius: var(--border-macstyle-border-radius);
 }
 </style>

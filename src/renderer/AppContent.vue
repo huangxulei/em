@@ -5,11 +5,17 @@ import Mousetrap from 'mousetrap';
 import Themes from './Themes.vue'
 import DefaultLayout from './layout/DefaultLayout.vue'
 import SimpleLayout from './layout/SimpleLayout.vue'
-import { useSettingStore } from './store/settingStore'
+import { useSettingStore } from './store/settingStore';
+import { usePlayStore } from './store/playStore';
+import { useAppCommonStore } from './store/appCommonStore';
 import { isMacOS, isWinOS, useIpcRenderer } from '../common/Utils'
 import EventBus from '../common/EventBus';
 
 const { isSimpleLayout, getWindowZoom } = storeToRefs(useSettingStore())
+
+const { hidePlaybackQueueView, hideAllCategoryViews } = useAppCommonStore()
+
+
 const ipcRenderer = useIpcRenderer()
 const currentAppLayout = shallowRef(null)
 
@@ -37,6 +43,23 @@ const initialize = () => {
 
 //直接在setup()时初始化，不需要等待其他生命周期
 initialize()
+
+
+const hideAllPopoverViews = () => {
+    //隐藏当前播放
+    hidePlaybackQueueView()
+    //隐藏全部分类
+    hideAllCategoryViews()
+}
+
+onMounted(() => {
+    //点击事件监听
+    document.addEventListener('click', e => {
+        //隐藏全部浮层
+        hideAllPopoverViews()
+    })
+
+})
 
 </script>
 <template>

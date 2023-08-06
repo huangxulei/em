@@ -8,6 +8,7 @@ import { PLAY_STATE, TRAY_ACTION, IMAGE_PROTOCAL } from '../common/Constants';
 import { Playlist } from '../common/Playlist';
 import { toMmss } from '../common/Times';
 import { Lyric } from '../common/Lyric';
+import { United } from '../vendor/united';
 
 import { usePlayStore } from './store/playStore'
 import { useAppCommonStore } from './store/appCommonStore';
@@ -22,6 +23,10 @@ const { playTrack, playNextTrack, setAutoPlaying, playPrevTrack, togglePlay,
 const { getVendor, isLocalMusic } = usePlatformStore()
 const { playingViewShow, videoPlayingViewShow, playingViewThemeIndex } = storeToRefs(useAppCommonStore())
 const { togglePlaybackQueueView, toggleVideoPlayingView, showFailToast, isCurrentTraceId, showToast } = useAppCommonStore()
+const { theme, layout, isStoreRecentPlay, isSimpleLayout, isVipTransferEnable,
+    isResumePlayAfterVideoEnable } = storeToRefs(useSettingStore())
+const { getCurrentThemeHighlightColor, setupStateRefreshFrequency,
+    setupSpectrumRefreshFrequency, setupTray } = useSettingStore()
 
 const playState = ref(PLAY_STATE.NONE)
 const setPlayState = (value) => playState.value = value
@@ -31,6 +36,19 @@ const mmssCurrentTime = ref('00:00')
 const mmssPreseekTime = ref(null) //格式: 00:00
 const currentTimeState = ref(0) //单位: 秒
 const progressState = ref(0)
+
+//处理不可播放歌曲
+const AUTO_PLAY_NEXT_MSG = '当前歌曲无法播放<br>即将为您播放下一曲'
+const NO_NEXT_MSG = '当前歌曲无法播放<br>列表无其他可播放歌曲'
+const OVERTRY_MSG = '尝试播放次数太多<br>请手动播放其他歌曲吧'
+const TRY_TRANSFRER_MSG = '当前歌曲无法播放<br>即将尝试切换其他版本'
+const TRANSFRER_OK_MSG = '版本切换已完成<br>即将为您播放歌曲'
+const TRANSFRER_FAIL_MSG = '没有其他版本切换<br>即将为您播放下一曲'
+
+//连跳计数器
+let autoSkipCnt = 0
+//重置连跳计数
+const resetAutoSkip = () => autoSkipCnt = 0
 
 const resetPlayState = (ignore) => {
     currentTimeState.value = 0
@@ -86,11 +104,72 @@ EventBus.on('track-state', state => {
             break
     }
 })
+
+//提示并播放下一曲
+const toastAndPlayNext = (track, msg) => {
+    //前提条件：必须是当前歌曲
+    if (isCurrentTrack(track)) {
+        showFailToast(msg || AUTO_PLAY_NEXT_MSG, () => {
+            if (isCurrentTrack(track)) playNextTrack()
+        })
+    }
+}
+
+//用户手动干预，即主动点击上/下一曲时，产生体验上的Bug
+//目前实现方式已稍作处理
+const handleUnplayableTrack = (track, msg) => {
+    const queueSize = queueTracksSize.value
+    const isPlaylistRadio = Playlist.isNormalRadioType(track)
+    if (isPlaylistRadio) { //普通歌单电台
+        toastAndPlayNext(track, msg)
+        return
+    } else if (autoSkipCnt >= queueSize) { //非电台歌曲，且没有下一曲
+        resetPlayState()
+        resetAutoSkip()
+        showFailToast(NO_NEXT_MSG)
+        return
+    }
+    //普通歌曲
+    //频繁切换下一曲，体验不好，对音乐平台也不友好
+    if (autoSkipCnt < 9) {
+        ++autoSkipCnt
+        toastAndPlayNext(track, msg)
+        return
+    }
+    resetPlayState()
+    //10连跳啦，暂停一下吧
+    resetAutoSkip()
+    showFailToast(OVERTRY_MSG)
+}
+
 //普通歌曲
 EventBus.on('track-changed', track => {
     bootstrapTrack(track).then(track => {
         if (isCurrentTrack(track)) {
             playTrackDirectly(track)
+        }
+    }, async (reason) => {
+        if (reason == 'noUrl') {
+            if (!isVipTransferEnable.value || isLocalMusic(track.platform)) {
+                handleUnplayableTrack(track)
+                return
+            }
+            showFailToast(TRY_TRANSFRER_MSG)
+            const candidate = await United.transferTrack(track)
+            if (!Track.hasUrl(candidate)) {
+                handleUnplayableTrack(track, TRANSFRER_FAIL_MSG)
+                return
+            }
+            if (!isCurrentTrack(track)) return
+            if (isDevEnv()) console.log(candidate)
+            const { url, lyric, lyricTrans, lyricRoma, duration, isCandidate } = candidate
+            Object.assign(track, { url, lyric, lyricTrans, lyricRoma, duration, isCandidate })
+            showToast(TRANSFRER_OK_MSG, () => {
+                if (isCurrentTrack(track)) {
+                    // loadLyric(track)
+                    playTrackDirectly(track)
+                }
+            })
         }
     })
 })

@@ -13,6 +13,7 @@ const squareContentRef = ref(null)
 const categories = reactive([])
 const playlists = reactive([])
 const pagination = { offset: 0, limit: 35, page: 1 }
+let markScrollTop = 0
 
 const { currentPlatformCode, currentCategoryCode, categoriesMap } = storeToRefs(usePlaylistSquareStore())
 const { currentVender, currentPlatformCategories, putCategories, getCategories } = usePlaylistSquareStore()
@@ -53,6 +54,11 @@ const resetPagination = () => {
     pagination.page = 1
 }
 
+const nextPage = () => {
+    pagination.offset = pagination.page * pagination.limit
+    pagination.page = pagination.page + 1
+}
+
 const resetCommom = () => {
     resetPagination()
 }
@@ -79,6 +85,39 @@ const loadContent = async (noLoadingMask) => {
     setLoadingContent(false)
 }
 
+const loadMoreContent = () => {
+    nextPage()
+    loadContent(true)
+}
+
+const scrollToLoad = () => {
+    if (isLoadingContent.value) return
+    const { scrollTop, scrollHeight, clientHeight } = squareContentRef.value
+    markScrollState()
+    const allowedError = 10 //允许误差
+    if ((scrollTop + clientHeight + allowedError) >= scrollHeight) {
+        loadMoreContent()
+    }
+}
+
+const onScroll = () => {
+    scrollToLoad()
+}
+
+const markScrollState = () => {
+    if (squareContentRef.value) markScrollTop = squareContentRef.value.scrollTop
+}
+
+const resetScrollState = () => {
+    markScrollTop = 0
+    if (squareContentRef.value) squareContentRef.value.scrollTop = markScrollTop
+}
+
+const restoreScrollState = () => {
+    //EventBus.emit("imageTextTiles-update")
+    if (markScrollTop < 1) return
+    if (squareContentRef.value) squareContentRef.value.scrollTop = markScrollTop
+}
 
 /*-------------- 各种监听 --------------*/
 onMounted(() => {
@@ -99,7 +138,7 @@ EventBus.on("playlistSquare-refresh", refreshData)
 
 </script>
 <template>
-    <div class="playlist-square-view" ref="squareContentRef">
+    <div class="playlist-square-view" ref="squareContentRef" @scroll="onScroll">
         <PlaylistCategoryBar :data="categories" :loading="isLoadingCategories"></PlaylistCategoryBar>
         <PlaylistsControl :data="playlists" :loading="isLoadingContent"></PlaylistsControl>
     </div>

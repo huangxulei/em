@@ -117,6 +117,8 @@ setupRouter()
 provide('appRoute', {
     currentRoutePath,
     visitRoute,
+    backward: () => router.back(),
+    forward: () => router.forward(),
     visitHome: () => (visitCommonRoute('/')),
     visitThemes: () => (visitCommonRoute('/themes')),
     visitUserHome: () => (visitCommonRoute('/userhome/all')),
@@ -125,7 +127,6 @@ provide('appRoute', {
     visitLocalMusic: () => (visitCommonRoute('/playlists/local')),
     visitPlaylistSquare: (platform) => (visitCommonRoute(`/playlists/square/${platform}`)),
     visitPlaylist: (platform, id) => {
-        console.log('visitPlaylist')
         const exploreMode = resolveExploreMode()
         if (platform === 'local') {
             return visitCommonRoute(`/${exploreMode}/local/${id}`)
