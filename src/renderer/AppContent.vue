@@ -12,10 +12,7 @@ import { isMacOS, isWinOS, useIpcRenderer } from '../common/Utils'
 import EventBus from '../common/EventBus';
 
 const { isSimpleLayout, getWindowZoom } = storeToRefs(useSettingStore())
-
 const { hidePlaybackQueueView, hideAllCategoryViews } = useAppCommonStore()
-
-
 const ipcRenderer = useIpcRenderer()
 const currentAppLayout = shallowRef(null)
 
@@ -43,7 +40,6 @@ const initialize = () => {
 
 //直接在setup()时初始化，不需要等待其他生命周期
 initialize()
-
 
 const hideAllPopoverViews = () => {
     //隐藏当前播放

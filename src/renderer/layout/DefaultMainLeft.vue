@@ -10,10 +10,8 @@ import path from 'path';
 import { useSettingStore } from '../store/settingStore';
 
 const { visitRoute } = inject('appRoute')
-
 const { platforms, currentPlatformIndex, currentPlatformCode } = storeToRefs(usePlatformStore())
 const { updateCurrentPlatform, isLocalMusic, isFreeFM } = usePlatformStore()
-
 const { isPlaylistMode, isArtistMode, isRadioMode, isUserHomeMode,
     exploreModeCode } = storeToRefs(useAppCommonStore())
 const { nextExploreMode, setPlaylistExploreMode, setRadioExploreMode } = useAppCommonStore()

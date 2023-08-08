@@ -22,6 +22,7 @@
   --content-text-module-title3-size: 19px;
   /* 行高 - 左导航 */
   --content-left-nav-line-height: 32px;
+  --content-left-nav-line-spacing: 10.5px;
   --content-error-color: red;
 
   /*边框 */

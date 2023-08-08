@@ -110,6 +110,19 @@ export const useSettingStore = defineStore('setting', {
             //启用Dnd操作，为本地歌单添加歌曲
             useDndForAddLocalTracks: true,
         },
+        /* 歌词 */
+        lyric: {
+            fontSize: 22,   //普通字号
+            hlFontSize: 22, //高亮字号
+            fontWeight: 400,
+            lineHeight: 28,
+            lineSpacing: 28,
+            offset: 0, //时间补偿值，快慢
+            metaPos: 0, //歌曲信息, 0:默认, 1:隐藏, 2:顶部
+            alignment: 0, //对齐方式, 0:左, 1:中, 2:右
+            trans: true, //翻译
+            roma: true //发音
+        },
         /* 菜单栏、Windows平台为系统托盘 */
         tray: {
             show: false, //是否在菜单栏显示
@@ -140,6 +153,9 @@ export const useSettingStore = defineStore('setting', {
         },
         isSimpleLayout() {
             return this.layout.index == 2
+        },
+        lyricMetaPos() {
+            return this.lyric.metaPos
         },
         getWindowZoom() {
             return this.common.winZoom

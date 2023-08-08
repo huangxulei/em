@@ -278,10 +278,45 @@ const addAndPlayTracks = (tracks, needReset, text, traceId) => {
     playNextTrack()
 }
 
-provide('player', {
-    seekTrack, playPlaylist, progressState, mmssCurrentTime,
-    addAndPlayTracks, mmssPreseekTime, playState,
+//播放进度，更新预备状态
+const preseekTrack = (percent) => {
+    const track = currentTrack.value
+    if (!track) return
+    const duration = track ? track.duration : 0
+    if (duration <= 0) return
+    mmssPreseekTime.value = toMmss(duration * percent)
+}
 
+/* 歌词获取 */
+const loadLyric = (track) => {
+    if (!track) {
+        if (isCurrentTrack(track)) EventBus.emit('track-noLyric', track)
+        return
+    }
+    if (!isCurrentTrack(track)) return
+    if (Track.hasLyric(track)) {
+        if (isCurrentTrack(track)) EventBus.emit('track-lyricLoaded', track)
+        return
+    }
+    //检查有效性
+    const platform = track.platform
+    const vendor = getVendor(platform)
+    if (!vendor || !vendor.lyric
+        || Playlist.isAnchorRadioType(track)) {
+        if (isCurrentTrack(track)) EventBus.emit('track-noLyric', track)
+        return
+    }
+    //获取歌词
+    vendor.lyric(track.id, track).then(result => {
+        //再次确认，可能歌曲已经被切走
+        if (isCurrentTrack(track)) updateLyric(track, result)
+    })
+}
+
+provide('player', {
+    seekTrack, playPlaylist, addAndPlayTracks, loadLyric,
+    mmssCurrentTime, currentTimeState, progressState, playState,
+    preseekTrack, mmssPreseekTime, isTrackSeekable,
 })
 
 </script>

@@ -5,11 +5,23 @@ import { useAppCommonStore } from './store/appCommonStore';
 import { useSettingStore } from './store/settingStore';
 import Notification from './components/Notification.vue';
 import PlaylistCategoryView from './views/PlaylistCategoryView.vue';
+import PlayingView from './views/PlayingView.vue';
+import VisualPlayingView from './views/VisualPlayingView.vue';
 
-const { commonNotificationShow, commonNotificationText,
+const currentPlayingView = shallowRef(null)
+
+const { playingViewShow, commonNotificationShow, commonNotificationText,
     commonNotificationType, playlistCategoryViewShow, } = storeToRefs(useAppCommonStore())
 const { isDefaultClassicLayout } = storeToRefs(useSettingStore())
-const { playbackQueueViewShow } = storeToRefs(useAppCommonStore())
+const { playbackQueueViewShow, playingViewThemeIndex, } = storeToRefs(useAppCommonStore())
+
+const setupPlayingView = (index) => {
+    index = index || playingViewThemeIndex.value
+    const playingViewThemes = [PlayingView, VisualPlayingView]
+    currentPlayingView.value = playingViewThemes[index]
+    //重置动画计数器，让歌曲进度直接刷新
+    //nextTick(() => EventBus.emit('track-resetAnimFrameCnt'))
+}
 
 const appBackgroundScope = reactive({
     playingView: true,
@@ -19,6 +31,10 @@ const appBackgroundScope = reactive({
     soundEffectView: false,
     lyricToolbar: false,
     randomMusicToolbar: false
+})
+
+onMounted(() => {
+    setupPlayingView()
 })
 
 </script>
@@ -72,9 +88,135 @@ const appBackgroundScope = reactive({
                 v-show="playbackQueueViewShow">
             </PlaybackQueueView>
         </transition>
+
+        <!-- 顶层浮动窗口 -->
+        <transition name="fade-y">
+            <component id="playing-view" v-show="playingViewShow" :is="currentPlayingView"
+                :class="{ 'app-custom-theme-bg': appBackgroundScope.playingView }">
+            </component>
+        </transition>
     </div>
 </template>
 <style>
+#playlist-category-view,
+#artist-category-view,
+#radio-category-view,
+#tags-category-view {
+    position: fixed;
+    top: 85px;
+    right: 0px;
+    width: 404px;
+    width: 40.4%;
+    z-index: 55;
+    background-color: var(--app-bg-color);
+    background-image: var(--app-bg-image);
+    box-shadow: 0px 0px 10px #161616;
+}
+
+#playback-queue-view {
+    position: absolute;
+    top: 0;
+    right: 0px;
+    width: 335px;
+    max-width: 404px;
+    width: 33.5%;
+    height: 100%;
+    z-index: 99;
+    box-shadow: var(--box-shadow);
+    border-top-right-radius: var(--border-macstyle-border-radius);
+    border-bottom-right-radius: var(--border-macstyle-border-radius);
+}
+
+#playing-view,
+#video-playing-view {
+    position: absolute;
+    top: 0;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 99;
+    background-position: center;
+    background-size: cover;
+    border-radius: var(--border-macstyle-border-radius);
+}
+
+#video-playing-view {
+    z-index: 100;
+}
+
+#sound-effect-view {
+    position: absolute;
+    right: 30px;
+    bottom: 80px;
+    width: 725px;
+    height: 550px;
+    z-index: 99;
+    box-shadow: var(--box-shadow);
+}
+
+#lyric-toolbar {
+    position: absolute;
+    top: 202px;
+    right: 30px;
+    z-index: 99;
+    box-shadow: var(--box-shadow);
+}
+
+#random-music-toolbar {
+    position: absolute;
+    bottom: 128px;
+    right: 30px;
+    z-index: 99;
+    box-shadow: var(--box-shadow);
+}
+
+#custom-theme-edit-view {
+    position: absolute;
+    right: 30px;
+    bottom: 80px;
+    width: 768px;
+    height: 520px;
+    z-index: 99;
+    background-color: var(--app-bg-color);
+    box-shadow: var(--box-shadow);
+}
+
+#color-picker-toolbar {
+    position: absolute;
+    left: 50%;
+    bottom: 125px;
+    z-index: 101;
+    background-color: var(--app-bg-color);
+    box-shadow: var(--box-shadow);
+}
+
+#gradient-color-toolbar {
+    width: 768px;
+    height: 568px;
+    position: absolute;
+    left: 50%;
+    bottom: 125px;
+    z-index: 100;
+    background-color: var(--app-bg-color);
+    box-shadow: var(--box-shadow);
+}
+
+#playlist-export-toolbar {
+    width: 520px;
+    height: 211px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 100;
+    background-color: var(--app-bg-color);
+    box-shadow: var(--box-shadow);
+}
+
+.app-custom-theme-bg .ntf-dialog-mask {
+    background-color: var(--app-bg-color);
+    background-image: var(--app-bg-image);
+}
+
 #popovers .autolayout {
     top: 60px;
 }
@@ -105,34 +247,5 @@ const appBackgroundScope = reactive({
     max-width: 520px;
     width: max-content !important;
     height: auto !important;
-}
-
-#playlist-category-view,
-#artist-category-view,
-#radio-category-view,
-#tags-category-view {
-    position: fixed;
-    top: 85px;
-    right: 0px;
-    width: 404px;
-    width: 40.4%;
-    z-index: 55;
-    background-color: var(--app-bg-color);
-    background-image: var(--app-bg-image);
-    box-shadow: 0px 0px 10px #161616;
-}
-
-#playback-queue-view {
-    position: absolute;
-    top: 0;
-    right: 0px;
-    width: 335px;
-    max-width: 404px;
-    width: 33.5%;
-    height: 100%;
-    z-index: 99;
-    box-shadow: var(--box-shadow);
-    border-top-right-radius: var(--border-macstyle-border-radius);
-    border-bottom-right-radius: var(--border-macstyle-border-radius);
 }
 </style>
