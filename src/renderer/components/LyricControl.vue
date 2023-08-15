@@ -17,28 +17,42 @@ const props = defineProps({
     track: Object, //Track
     currentTime: Number
 })
-
+const { loadLyric, seekTrack, playState } = inject('player')
+//当前索引
 const currentIndex = ref(-1)
+const setLyricCurrentIndex = (value) => currentIndex.value = value
+//数据
 const lyricData = ref(Track.lyricData(props.track))
+const setLyricData = (value) => lyricData.value = value
+//时间滞后
 let presetOffset = Track.lyricOffset(props.track)
+const setPresetOffset = (value) => presetOffset = value
+//翻译
 const lyricTransData = ref(Track.lyricTransData(props.track))
+const setLyricTransData = (value) => lyricTransData.value = value
+//罗马数据
 const lyricRomaData = ref(Track.lyricRomaData(props.track))
+const setLyricRomaData = (value) => lyricRomaData.value = value
 
 //播放到指定歌词行，即通过歌词调整歌曲进度
 const scrollLocatorTime = ref(0)
-const scrollLocatorTimeText = ref('00:00')
-const scrollLocatorCurrentIndex = ref(-1)
-
 const setScrollLocatorTime = (value) => scrollLocatorTime.value = value
+const scrollLocatorTimeText = ref('00:00')
 const setScrollLocatorTimeText = (value) => scrollLocatorTimeText.value = value
+const scrollLocatorCurrentIndex = ref(-1)
 const setScrollLocatorCurrentIndex = (value) => scrollLocatorCurrentIndex.value = value
-
+//用户鼠标滚轮
 const isUserMouseWheel = ref(false)
 let userMouseWheelCancelTimer = null
-const isSeeking = ref(false)
-const lyricExistState = ref(-1)
-
 const setUserMouseWheel = (value) => isUserMouseWheel.value = value
+
+const isSeeking = ref(false)
+const setSeeking = (value) => isSeeking.value = value
+//歌词状态 
+//-1 加载中 0 无 1有
+const lyricExistState = ref(-1)
+const setLyricExistState = (value) => lyricExistState.value = value
+const isLyricReady = () => lyricExistState.value == 1
 
 const isHeaderVisible = () => (lyric.value.metaPos == 0)
 
@@ -58,6 +72,15 @@ const updateScrollLocatorTime = () => {
     setScrollLocatorTimeText(timekey.split('.')[0])
     const index = pointEl.getAttribute('index')
     setScrollLocatorCurrentIndex(index)
+}
+
+const onUserMouseWheel = (e) => {
+    setUserMouseWheel(true)
+    if (userMouseWheelCancelTimer) clearTimeout(userMouseWheelCancelTimer)
+    userMouseWheelCancelTimer = setTimeout(() => {
+        setUserMouseWheel(false)
+    }, 2888)
+    updateScrollLocatorTime()
 }
 
 //重新加载歌词
@@ -82,23 +105,11 @@ const reloadLyricData = (track) => {
     }
     //重置数据
     resetLyricState(track, isExist ? 1 : 0)
-    //重置滚动条位置
-    //resetDefaultLyricScrollTop()
     //重新设置样式
     nextTick(() => {
-        //setupLyricLines()
         setupLyricExtra()
         safeRenderAndScrollLyric(props.currentTime, true)
     })
-}
-
-const onUserMouseWheel = (e) => {
-    setUserMouseWheel(true)
-    if (userMouseWheelCancelTimer) clearTimeout(userMouseWheelCancelTimer)
-    userMouseWheelCancelTimer = setTimeout(() => {
-        setUserMouseWheel(false)
-    }, 2888)
-    updateScrollLocatorTime()
 }
 
 const setLyricLineStyle = (line) => {
@@ -153,6 +164,29 @@ EventBus.on('lyric-fontWeight', setupLyricLines)
 EventBus.on('lyric-lineHeight', setupLyricLines)
 EventBus.on('lyric-lineSpacing', setupLyricLines)
 EventBus.on('lyric-alignment', setupLyricAlignment)
+
+
+const resetLyricState = (track, state) => {
+    state = state >= -1 ? state : -1
+    //重置状态 state 未赋值 state = -1 
+    setLyricExistState(state)
+    //装数据 
+    setLyricData(Track.lyricData(track))
+    setLyricTransData(Track.lyricTransData(track))
+    setLyricRomaData(Track.lyricRomaData(track))
+    setPresetOffset(Track.lyricOffset(track))
+    //初始化状态
+    setLyricCurrentIndex(-1)
+    setSeeking(false)
+}
+
+//获取 载入歌词 给track 添加歌词
+watch(() => props.track, (nv, ov) => {
+    if (!nv) return
+    resetLyricState(nv)
+    loadLyric(nv)
+}, { immediate: true })
+
 
 </script>
 <template>

@@ -183,12 +183,7 @@ EventBus.on('track-pos', secs => {
     progressState.value = duration > 0 ? (currentTime / duration) : 0
 })
 
-const updateLyric = (track, { lyric, roma, trans }) => {
-    if (track || Lyric.hasData(lyric)) Object.assign(track, { lyric })
-    if (track || Lyric.hasData(roma)) Object.assign(track, { lyricRoma: roma })
-    if (track || Lyric.hasData(trans)) Object.assign(track, { lyricTrans: trans })
-    EventBus.emit('track-lyricLoaded', track)
-}
+
 
 //获取和设置歌曲播放信息
 const bootstrapTrack = (track) => {
@@ -313,10 +308,17 @@ const loadLyric = (track) => {
     })
 }
 
+const updateLyric = (track, { lyric, roma, trans }) => {
+    if (track || Lyric.hasData(lyric)) Object.assign(track, { lyric })
+    if (track || Lyric.hasData(roma)) Object.assign(track, { lyricRoma: roma })
+    if (track || Lyric.hasData(trans)) Object.assign(track, { lyricTrans: trans })
+    EventBus.emit('track-lyricLoaded', track)
+}
+
 provide('player', {
     seekTrack, playPlaylist, addAndPlayTracks, loadLyric,
     mmssCurrentTime, currentTimeState, progressState, playState,
-    preseekTrack, mmssPreseekTime, isTrackSeekable,
+    preseekTrack, mmssPreseekTime,
 })
 
 </script>

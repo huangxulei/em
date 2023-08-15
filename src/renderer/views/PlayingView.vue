@@ -6,6 +6,7 @@ import { usePlayStore } from '../store/playStore';
 import { useAppCommonStore } from '../store/appCommonStore';
 import { useSettingStore } from '../store/settingStore';
 import ArtistControl from '../components/ArtistControl.vue';
+import LyricControl from '../components/LyricControl.vue';
 import WinTrafficLightBtn from '../components/WinTrafficLightBtn.vue';
 import { useUseCustomTrafficLight } from '../../common/Utils';
 import { Track } from '../../common/Track';
@@ -48,7 +49,7 @@ const onUserMouseWheel = (e) => EventBus.emit('lyric-userMouseWheel', e)
                     <img v-lazy="currentTrack.cover" />
                 </div>
                 <div class="lyric-wrap">
-                    <LyricControl :track="currentTrack" :currentTime="currentTimeState" @mousewheel="onUserMouseWheel">
+                    <LyricControl :track="currentTrack" :currentTime="currentTimeState">
                     </LyricControl>
                 </div>
             </div>
