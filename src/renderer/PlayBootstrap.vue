@@ -308,10 +308,8 @@ const loadLyric = (track) => {
     })
 }
 
-const updateLyric = (track, { lyric, roma, trans }) => {
+const updateLyric = (track, { lyric }) => {
     if (track || Lyric.hasData(lyric)) Object.assign(track, { lyric })
-    if (track || Lyric.hasData(roma)) Object.assign(track, { lyricRoma: roma })
-    if (track || Lyric.hasData(trans)) Object.assign(track, { lyricTrans: trans })
     EventBus.emit('track-lyricLoaded', track)
 }
 

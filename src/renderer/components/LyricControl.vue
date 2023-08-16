@@ -13,6 +13,9 @@ import { PLAY_STATE } from '../../common/Constants';
 import { smoothScroll } from '../../common/Utils';
 
 const { lyric } = storeToRefs(useSettingStore())
+const { playingViewShow } = storeToRefs(useAppCommonStore())
+const { toggleLyricTrans, toggleLyricRoma, getStateRefreshFrequency } = useSettingStore()
+
 const props = defineProps({
     track: Object, //Track
     currentTime: Number
@@ -27,12 +30,6 @@ const setLyricData = (value) => lyricData.value = value
 //时间滞后
 let presetOffset = Track.lyricOffset(props.track)
 const setPresetOffset = (value) => presetOffset = value
-//翻译
-const lyricTransData = ref(Track.lyricTransData(props.track))
-const setLyricTransData = (value) => lyricTransData.value = value
-//罗马数据
-const lyricRomaData = ref(Track.lyricRomaData(props.track))
-const setLyricRomaData = (value) => lyricRomaData.value = value
 
 //播放到指定歌词行，即通过歌词调整歌曲进度
 const scrollLocatorTime = ref(0)
@@ -107,24 +104,24 @@ const reloadLyricData = (track) => {
     resetLyricState(track, isExist ? 1 : 0)
     //重新设置样式
     nextTick(() => {
-        setupLyricExtra()
         safeRenderAndScrollLyric(props.currentTime, true)
     })
 }
+
+EventBus.on('track-lyricLoaded', reloadLyricData)
+EventBus.on('track-noLyric', reloadLyricData)
+EventBus.on('lyric-userMouseWheel', onUserMouseWheel)
 
 const setLyricLineStyle = (line) => {
     const { fontSize, hlFontSize, fontWeight, lineHeight, lineSpacing } = lyric.value
 
     const textEl = line.querySelector('.text')
-    const extraTextEl = line.querySelector('.extra-text')
 
     if (!textEl || !textEl.style) return
 
     textEl.style.lineHeight = `${lineHeight}px`
     textEl.style.marginTop = `${lineSpacing}px`
-    extraTextEl.style.lineHeight = `${lineHeight}px`
 
-    //const classAttr = line.getAttribute('class')
     if (line.classList.contains('current')) { //高亮行
         line.style.fontSize = hlFontSize + "px"
         line.style.fontWeight = 'bold'
@@ -139,31 +136,57 @@ const setupLyricLines = () => {
     if (lines) lines.forEach(line => setLyricLineStyle(line))
 }
 
-const setupLyricAlignment = () => {
-    const lyricCtlEls = document.querySelectorAll(".lyric-ctl")
-    const artistEls = document.querySelectorAll(".lyric-ctl .audio-artist")
-    const albumEls = document.querySelectorAll(".lyric-ctl .audio-album")
-    const noLyricEls = document.querySelectorAll(".lyric-ctl .no-lyric")
-    const textAligns = ['left', 'center', 'right']
-    const flexAligns = ['flex-start', 'center', 'flex-end']
-    const { alignment } = lyric.value
-    if (lyricCtlEls) lyricCtlEls.forEach(el => el.style.textAlign = textAligns[alignment])
-    if (artistEls) artistEls.forEach(el => el.style.justifyContent = flexAligns[alignment])
-    if (albumEls) albumEls.forEach(el => el.style.justifyContent = flexAligns[alignment])
-    if (noLyricEls) noLyricEls.forEach(el => el.style.justifyContent = flexAligns[alignment])
+const renderAndScrollLyric = (secs) => {//渲染滚动
+    if (!isLyricReady()) return
+    if (isSeeking.value) return
+    const userOffset = lyric.value.offset
+    const trackTime = Math.max(0, (secs * 1000 + presetOffset + userOffset))
+    //Highlight
+    const lyricWrap = document.querySelector(".lyric-ctl .center")
+    if (!lyricWrap) return
+    const lines = lyricWrap.querySelectorAll('.line')
+    let index = -1
+    for (var i = 0; i < lines.length; i++) {
+        const timeKey = lines[i].getAttribute('timeKey')
+        const lineTime = toMillis(timeKey)
+        if (trackTime >= lineTime) {
+            index = i
+        } else if (trackTime < lineTime) {
+            break
+        }
+    }
+    nextTick(setupLyricLines)
+    if (index >= 0) {
+        setLyricCurrentIndex(index)
+    } else {
+        index = 0
+    }
 
-    setupLyricScrollLocator()
+    //是否为用户手动滚动歌词
+    if (isUserMouseWheel.value || isSeeking.value) return
+
+    ////算法3：播放页垂直居中，依赖offsetParent定位；与算法2相似，只是参考系不同而已 ////
+    //基本保证：准确定位，当前高亮行在播放页垂直居中，且基本与ScrollLocator平行
+    //绝对意义上来说，并不垂直居中，也并不平行，因为歌词行自身有一定高度
+    if (!lines[index] || !lines[index].offsetTop) return
+    const { offsetTop } = lyricWrap
+    const { clientHeight } = document.documentElement
+    const destScrollTop = lines[index].offsetTop - (clientHeight / 2 - offsetTop)
+    //暂时随意设置时间值300左右吧，懒得再计算相邻两句歌词之间的时间间隔了，感觉不是很必要
+    const frequency = getStateRefreshFrequency()
+    const duration = 300 * frequency / 60
+    smoothScroll(lyricWrap, destScrollTop, duration, 5, () => {
+        return (isUserMouseWheel.value || isSeeking.value)
+    })
 }
 
-EventBus.on('track-lyricLoaded', reloadLyricData)
-EventBus.on('track-noLyric', reloadLyricData)
-EventBus.on('lyric-userMouseWheel', onUserMouseWheel)
-EventBus.on('lyric-fontSize', setupLyricLines)
-EventBus.on('lyric-hlFontSize', setupLyricLines)
-EventBus.on('lyric-fontWeight', setupLyricLines)
-EventBus.on('lyric-lineHeight', setupLyricLines)
-EventBus.on('lyric-lineSpacing', setupLyricLines)
-EventBus.on('lyric-alignment', setupLyricAlignment)
+const safeRenderAndScrollLyric = (secs) => {
+    try {
+        renderAndScrollLyric(secs)
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 
 const resetLyricState = (track, state) => {
@@ -172,13 +195,19 @@ const resetLyricState = (track, state) => {
     setLyricExistState(state)
     //装数据 
     setLyricData(Track.lyricData(track))
-    setLyricTransData(Track.lyricTransData(track))
-    setLyricRomaData(Track.lyricRomaData(track))
     setPresetOffset(Track.lyricOffset(track))
     //初始化状态
     setLyricCurrentIndex(-1)
     setSeeking(false)
 }
+
+//根据播放时间去运行
+watch(() => props.currentTime, (nv, ov) => {
+    //TODO 暂时简单处理，播放页隐藏时直接返回
+    if (!playingViewShow.value) return
+    safeRenderAndScrollLyric(nv)
+}, { immediate: true })
+
 
 //获取 载入歌词 给track 添加歌词
 watch(() => props.track, (nv, ov) => {
@@ -227,7 +256,6 @@ watch(() => props.track, (nv, ov) => {
                     locatorCurrent: (index == scrollLocatorCurrentIndex && index != currentIndex && isUserMouseWheel)
                 }">
                 <div class="text" :timeKey="key" :index="index" v-html="value"></div>
-                <div class="extra-text" v-show="isExtraTextActived"></div>
             </div>
         </div>
     </div>

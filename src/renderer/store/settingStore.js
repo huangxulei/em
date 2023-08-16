@@ -246,6 +246,9 @@ export const useSettingStore = defineStore('setting', {
             if (this.common.winZoom == zoom) return//如果跟之前一样
             this.common.winZoom = zoom
             this.setupWindowZoom()
-        }
+        },
+        getStateRefreshFrequency() {
+            return this.track.stateRefreshFrequency
+        },
     }
 })

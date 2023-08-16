@@ -11,7 +11,7 @@ import WinTrafficLightBtn from '../components/WinTrafficLightBtn.vue';
 import { useUseCustomTrafficLight } from '../../common/Utils';
 import { Track } from '../../common/Track';
 
-const { seekTrack, playMv, progressState, mmssCurrentTime,
+const { seekTrack, progressState, mmssCurrentTime,
     currentTimeState, preseekTrack, mmssPreseekTime, isTrackSeekable } = inject('player')
 //是否使用自定义交通灯控件
 const useCustomTrafficLight = useUseCustomTrafficLight()
@@ -52,6 +52,12 @@ const onUserMouseWheel = (e) => EventBus.emit('lyric-userMouseWheel', e)
                     <LyricControl :track="currentTrack" :currentTime="currentTimeState">
                     </LyricControl>
                 </div>
+            </div>
+            <div class="bottom">
+                <SliderBar :value="progressState" :disable="!isTrackSeekable" :onSeek="seekTrack"
+                    :onScroll="preseekTrack" :onScrollFinish="seekTrack" :onDragRelease="seekTrack"
+                    :onDragMove="preseekTrack">
+                </SliderBar>
             </div>
         </div>
     </div>
