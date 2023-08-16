@@ -54,10 +54,18 @@ const onUserMouseWheel = (e) => EventBus.emit('lyric-userMouseWheel', e)
                 </div>
             </div>
             <div class="bottom">
-                <SliderBar :value="progressState" :disable="!isTrackSeekable" :onSeek="seekTrack"
-                    :onScroll="preseekTrack" :onScrollFinish="seekTrack" :onDragRelease="seekTrack"
-                    :onDragMove="preseekTrack">
+                <SliderBar :value="progressState" :disable="!isTrackSeekable" :onSeek="seekTrack">
                 </SliderBar>
+                <div class="action">
+                    <div>
+                        <AudioTime :current="mmssPreseekTime || mmssCurrentTime"
+                            :duration="Track.mmssDuration(currentTrack)">
+                        </AudioTime>
+                    </div>
+                    <div class="btm-center">
+                        <PlayControl></PlayControl>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
