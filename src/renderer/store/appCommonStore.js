@@ -198,8 +198,8 @@ export const useAppCommonStore = defineStore('appCommon', {
         },
         hideAllCategoryViews() {
             this.hidePlaylistCategoryView()
-            this.hideArtistCategoryView()
-            this.hideRadioCategoryView()
+            // this.hideArtistCategoryView()
+            // this.hideRadioCategoryView()
         },
         setCommonNotificationType(type) {
             this.commonNotificationType = type || 0

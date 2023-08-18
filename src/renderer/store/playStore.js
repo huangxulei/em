@@ -68,11 +68,6 @@ export const usePlayStore = defineStore('play', {
         },
         togglePlay() {
             const { currentTrack: track } = this
-            //FM广播
-            if (this.isDefaultFMRadioType(track)) {
-                EventBus.emit('radio-togglePlay')
-                return
-            }
             //播放列表为空
             if (this.queueTracksSize < 1) return
             //当前歌曲不存在或存在但缺少url

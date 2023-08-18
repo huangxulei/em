@@ -27,7 +27,7 @@ export class Player {
     }
 
     static initAndSetup() {
-        const player = Player.get()
+        const player = Player.get()//初始化
         return player.on('track-play', track => player.playTrack(track))
             .on('track-restore', track => player.restore(track))
             .on('track-changed', () => player.setCurrent(null))
@@ -48,6 +48,7 @@ export class Player {
     }
 
     createSound() {
+        console.log('createSound', this._isTrackAvailable())
         if (!this._isTrackAvailable()) return null
         var self = this
         this.sound = new Howl({
@@ -100,6 +101,7 @@ export class Player {
     }
 
     togglePlay() {
+        console.log(this.currentTrack)
         const sound = this.getSound()
         if (!sound) {
             this._retryPlay(1)

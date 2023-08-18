@@ -65,6 +65,9 @@ const onUserMouseWheel = (e) => EventBus.emit('lyric-userMouseWheel', e)
                     <div class="btm-center">
                         <PlayControl></PlayControl>
                     </div>
+                    <div>
+                        <VolumeBar ref="volumeBarRef"></VolumeBar>
+                    </div>
                 </div>
             </div>
         </div>

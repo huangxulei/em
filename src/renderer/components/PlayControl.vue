@@ -7,7 +7,7 @@ const { playPrevTrack, togglePlay, playNextTrack, switchPlayMode } = usePlayStor
 const { togglePlaybackQueueView, hideAllCategoryViews } = useAppCommonStore()
 
 const togglePlaybackQueue = () => {
-    hideAllCategoryViews()
+    //hideAllCategoryViews()
     togglePlaybackQueueView()
 }
 </script>

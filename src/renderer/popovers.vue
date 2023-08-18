@@ -83,18 +83,19 @@ onMounted(() => {
             </Notification>
         </transition>
 
+        <!-- 顶层浮动窗口 -->
+        <transition name="fade-y">
+            <component id="playing-view" v-show="playingViewShow" :is="currentPlayingView" :class="{ 'app-custom-theme-bg': appBackgroundScope.playingView }">
+            </component>
+        </transition>
+
         <transition name="fade-ex">
             <PlaybackQueueView id="playback-queue-view" :class="{ 'app-custom-theme-bg': appBackgroundScope.playbackQueue }"
                 v-show="playbackQueueViewShow">
             </PlaybackQueueView>
         </transition>
 
-        <!-- 顶层浮动窗口 -->
-        <transition name="fade-y">
-            <component id="playing-view" v-show="playingViewShow" :is="currentPlayingView"
-                :class="{ 'app-custom-theme-bg': appBackgroundScope.playingView }">
-            </component>
-        </transition>
+
     </div>
 </template>
 <style>

@@ -142,6 +142,18 @@ const handleUnplayableTrack = (track, msg) => {
     showFailToast(OVERTRY_MSG)
 }
 
+//接收播放器错误通知，重试播放
+const onPlayerErrorRetry = ({ retry, track, currentTime }) => {
+    if (!retry) { //超出最大重试次数
+        handleUnplayableTrack(track)
+    } else if (track) {
+        //TODO 暂时重头开始播放
+        EventBus.emit('track-changed', track)
+    }
+}
+
+EventBus.on('track-error', onPlayerErrorRetry)
+
 //普通歌曲
 EventBus.on('track-changed', track => {
     bootstrapTrack(track).then(track => {
@@ -182,8 +194,6 @@ EventBus.on('track-pos', secs => {
     const duration = track ? track.duration : 0
     progressState.value = duration > 0 ? (currentTime / duration) : 0
 })
-
-
 
 //获取和设置歌曲播放信息
 const bootstrapTrack = (track) => {
@@ -312,6 +322,19 @@ const updateLyric = (track, { lyric }) => {
     if (track || Lyric.hasData(lyric)) Object.assign(track, { lyric })
     EventBus.emit('track-lyricLoaded', track)
 }
+
+//应用启动时，恢复歌曲信息
+const restoreTrack = () => {
+    bootstrapTrack(currentTrack.value, true).then(track => {
+        EventBus.emit("track-restore", track)
+    }).catch(error => {
+        if (error) console.log(error)
+    })
+}
+
+onMounted(() => {
+    restoreTrack()
+})
 
 provide('player', {
     seekTrack, playPlaylist, addAndPlayTracks, loadLyric,
