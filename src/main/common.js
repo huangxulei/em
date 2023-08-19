@@ -47,6 +47,10 @@ const randomTextWithinAlphabetNums = (len) => {
 module.exports = {
     randomText,
     randomTextWithinAlphabetNums,
+    FILE_PREFIX,
+    IMAGE_PROTOCAL,
+    ALPHABET_NUMS,
     nextInt,
-    MD5, SHA1,
+    MD5,
+    SHA1
 }

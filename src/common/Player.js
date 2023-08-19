@@ -48,7 +48,6 @@ export class Player {
     }
 
     createSound() {
-        console.log('createSound', this._isTrackAvailable())
         if (!this._isTrackAvailable()) return null
         var self = this
         this.sound = new Howl({

@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu, Tray } = require('electron')
 const { isMacOS, isWinOS, useCustomTrafficLight, isDevEnv, USER_AGENTS, AUDIO_EXTS, IMAGE_EXTS,
     APP_ICON, AUDIO_PLAYLIST_EXTS, BACKUP_FILE_EXTS } = require('./env')
-const { randomTextWithinAlphabetNums, nextInt, MD5, SHA1 } = require('./common')
+const { randomTextWithinAlphabetNums, FILE_PREFIX, nextInt, MD5, SHA1 } = require('./common')
 const path = require('path')
 //显示模式 默认/简单(小屏幕)
 const DEFAULT_LAYOUT = 'default', SIMPLE_LAYOUT = 'simple'
@@ -270,6 +270,29 @@ const registryGlobalListeners = () => {
     }).on('app-layout-default', (e, { zoom, isInit }) => {
         setupAppLayout(DEFAULT_LAYOUT, zoom, isInit)
     })
+
+    ipcMain.handle('open-dirs', async (event, ...args) => {
+        const result = await dialog.showOpenDialog(mainWin, {
+            title: '请选择文件夹',
+            properties: ['openDirectory']
+        })
+        if (result.canceled) return null
+        return result.filePaths
+    })
+
+    ipcMain.handle('open-image', async (event, ...args) => {
+        const result = await dialog.showOpenDialog(mainWin, {
+            title: '请选择文件',
+            filters: [
+                { name: 'Image', extensions: IMAGE_EXTS }
+            ],
+            properties: ['openFile']
+        })
+        return result.filePaths.map(item => (FILE_PREFIX + item))
+    })
+
+
+
 }
 
 const setupAppWindowZoom = (zoom, noResize) => {

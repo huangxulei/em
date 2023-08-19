@@ -133,6 +133,10 @@ provide('appRoute', {
         }
         return visitCommonRoute(`/${exploreMode}/playlist/${platform}/${id}`)
     },
+    visitLocalPlaylistCreate: (exploreMode) => {
+        exploreMode = resolveExploreMode(exploreMode)
+        return visitCommonRoute(`/${exploreMode}/local/create`)
+    },
 })
 </script>
 <template>
