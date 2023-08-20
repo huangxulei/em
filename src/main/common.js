@@ -93,6 +93,91 @@ const isExtentionValid = (name, exts) => {
     return false
 }
 
+async function createTrackFromMetadata(file) {
+    file = transformPath(file)
+    const statResult = statSync(file, { throwIfNoEntry: false })
+    if (!statResult) return null
+
+    const metadata = await MusicMetadata.parseFile(file, { duration: true })
+    const artist = []
+    let filename = getSimpleFileName(file)
+    const album = { id: 0, name: '' }
+    //let coverData = 'default_cover.png'
+    let title = null, duration = 0, lyricText = null, publishTime = null
+    try {
+        if (metadata.common) {
+            const { title: mTitle, artist: mArtist, artists, album: mAlbum, picture, lyrics,
+                year: mYear, date: mDate, originaldate } = metadata.common
+            //歌曲名称
+            if (mTitle) title = mTitle.trim()
+            //歌手、艺人
+            if (artists) {
+                if (artists.length > 1) {
+                    artists.forEach(ar => artist.push({ id: 0, name: ar }))
+                } else { //异常格式
+                    artists.forEach(ar => {
+                        const delimiter = '、'
+                        const names = ar.replace(/[\/&，,\|\\]/g, delimiter).split(delimiter)
+                        names.forEach(name => {
+                            artist.push({ id: 0, name })
+                        })
+                    })
+                }
+            }
+            //专辑名称
+            if (mAlbum) Object.assign(album, { id: 0, name: mAlbum })
+            //封面
+            //const cover = MusicMetadata.selectCover(picture)
+            //直接返回内容数据，太耗内存
+            //if (cover) coverData = `data:${cover.format};base64,${cover.data.toString('base64')}`
+
+            //内嵌歌词
+            if (lyrics && lyrics.length > 0) lyricText = lyrics[0]
+
+            //发布时间
+            if (originaldate) publishTime = originaldate
+            if (!publishTime && mDate) publishTime = mDate
+            if (!publishTime && mYear) publishTime = mYear
+        }
+        if (metadata.format) {
+            const { duration: mDuration } = metadata.format
+            if (mDuration) duration = mDuration * 1000
+        }
+
+        //内嵌歌词
+        if (metadata.native && !lyricText) {
+            const ID3v23 = metadata.native['ID3v2.3']
+            for (var i in ID3v23) {
+                const { id, value } = ID3v23[i]
+                if (id === 'USLT') {
+                    lyricText = value.text
+                    break
+                }
+            }
+        }
+
+        //TODO
+        const hash = MD5(file)
+        return {
+            id: hash,
+            platform: 'local',
+            title: title || filename,
+            filename,
+            artist,
+            album,
+            duration,
+            cover: (IMAGE_PROTOCAL.prefix + file),
+            embeddedLyricText: lyricText,
+            url: (FILE_PREFIX + file),
+            publishTime
+        }
+
+    } catch (error) {
+        console.log(error)
+    }
+    return null
+}
+
 async function parseTracks(audioFiles) {
     const tracks = []
     for (const file of audioFiles) {
@@ -131,6 +216,20 @@ const scanDirTracks = async (dir, exts, deep) => {
     }
 }
 
+function readText(file, encoding) {
+    try {
+        file = transformPath(file)
+        const statResult = statSync(file, { throwIfNoEntry: false })
+        if (statResult) {
+            const data = readFileSync(file, { encoding })
+            return data.toString()
+        }
+    } catch (error) {
+        console.log(error)
+    }
+    return null
+}
+
 module.exports = {
     randomText,
     randomTextWithinAlphabetNums,
@@ -140,5 +239,6 @@ module.exports = {
     nextInt,
     MD5,
     SHA1,
-    scanDirTracks
+    scanDirTracks,
+    readText
 }

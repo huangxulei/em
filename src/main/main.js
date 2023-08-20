@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu, Tray } = require('electron')
 const { isMacOS, isWinOS, useCustomTrafficLight, isDevEnv, USER_AGENTS, AUDIO_EXTS, IMAGE_EXTS,
     APP_ICON, AUDIO_PLAYLIST_EXTS, BACKUP_FILE_EXTS } = require('./env')
-const { randomTextWithinAlphabetNums, FILE_PREFIX, nextInt, MD5, SHA1, scanDirTracks } = require('./common')
+const { randomTextWithinAlphabetNums, FILE_PREFIX, nextInt, MD5, SHA1, scanDirTracks, readText } = require('./common')
 const path = require('path')
 //显示模式 默认/简单(小屏幕)
 const DEFAULT_LAYOUT = 'default', SIMPLE_LAYOUT = 'simple'
@@ -312,6 +312,14 @@ const registryGlobalListeners = () => {
         })
         if (result.canceled) return null
         return parseTracks(result.filePaths)
+    })
+
+    ipcMain.handle('load-lyric-file', async (event, ...args) => {
+        const arg = args[0].trim()
+        const index = arg.lastIndexOf('.')
+        const lyricFile = arg.substring(0, index)
+        return readText(`${lyricFile}.lrc`)
+            || readText(`${lyricFile}.LRC`)
     })
 
 
