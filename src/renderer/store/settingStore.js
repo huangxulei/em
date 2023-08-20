@@ -185,9 +185,28 @@ export const useSettingStore = defineStore('setting', {
         isHideToTrayOnMinimized() {
             return this.tray.showOnMinimized
         },
+        currentTheme() {
+            return this.getCurrentTheme()
+        },
+        isResumePlayAfterVideoEnable() {
+            return this.track.resumePlayAfterVideo
+        },
+        isUseOnlineCoverEnable() {
+            return this.track.useOnlineCover
+        },
+        isUseDeeplyScanForDirectoryEnable() {
+            return this.track.useDeeplyScanForDirectory
+        },
+        isUseDndForCreateLocalPlaylistEnable() {
+            return this.track.useDndForCreateLocalPlaylist
+        }
+        ,
+        isUseDndForAddLocalTracksEnable() {
+            return this.track.useDndForAddLocalTracks
+        },
         isPlaybackQueueAutoPositionOnShow() {
             return this.track.playbackQueueAutoPositionOnShow
-        },
+        }
     },
     actions: {
         setThemeIndex(index, type) {

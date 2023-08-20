@@ -44,6 +44,93 @@ const randomTextWithinAlphabetNums = (len) => {
     return randomText(ALPHABET_NUMS + ALPHABET_NUMS + ALPHABET_NUMS, len)
 }
 
+const transformPath = (path) => {
+    try {
+        return path.replace(FILE_PREFIX, '')
+            .replace(/\\/g, '/')
+            .replace(/\/\//g, '').trim()
+    } catch (error) {
+        console.log(error)
+    }
+    return path
+}
+
+function getSimpleFileName(fullname) {
+    if (!fullname) return ''
+    fullname = transformPath(fullname)
+    const from = fullname.lastIndexOf('/')
+    let to = fullname.lastIndexOf('.')
+    to = to >= 0 ? to : fullname.length
+    return fullname.substring(from + 1, to)
+}
+
+
+/**
+ * 遍历当前目录全部文件，包括子目录
+ */
+const walkSync = (dir, callback, options) => {
+    try {
+        options = options || { deep: false }
+        readdirSync(dir, { withFileTypes: true }).forEach(dirent => {
+            var pathName = path.join(dir, dirent.name);
+            if (dirent.isFile()) {
+                callback(pathName, dirent);
+            } else if (dirent.isDirectory() && options.deep) {
+                walkSync(pathName, callback, options);
+            }
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const isExtentionValid = (name, exts) => {
+    for (var ext of exts) {
+        if (name && name.endsWith(ext)) {
+            return true
+        }
+    }
+    return false
+}
+
+async function parseTracks(audioFiles) {
+    const tracks = []
+    for (const file of audioFiles) {
+        try {
+            if (!isExtentionValid(file, AUDIO_EXTS)) continue
+            const track = await createTrackFromMetadata(file)
+            if (track) {
+                const index = tracks.findIndex(item => track.id == item.id)
+                if (index == -1) tracks.push(track)
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    return tracks
+}
+
+const scanDirTracks = async (dir, exts, deep) => {
+    try {
+        if (!exts || exts.length < 1) exts = AUDIO_EXTS
+        const result = { path: dir, data: [], name: getSimpleFileName(dir) }
+        const files = []
+        walkSync(dir, (file, dirent) => {
+            if (dirent.isFile() && isExtentionValid(dirent.name, exts)) {
+                files.push(transformPath(file))
+            }
+        }, { deep })
+        if (files.length > 0) {
+            const tracks = await parseTracks(files.sort())
+            result.data.push(...tracks)
+        }
+        return result
+    } catch (error) {
+        console.log(error);
+        return null
+    }
+}
+
 module.exports = {
     randomText,
     randomTextWithinAlphabetNums,
@@ -52,5 +139,6 @@ module.exports = {
     ALPHABET_NUMS,
     nextInt,
     MD5,
-    SHA1
+    SHA1,
+    scanDirTracks
 }

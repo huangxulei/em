@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu, Tray } = require('electron')
 const { isMacOS, isWinOS, useCustomTrafficLight, isDevEnv, USER_AGENTS, AUDIO_EXTS, IMAGE_EXTS,
     APP_ICON, AUDIO_PLAYLIST_EXTS, BACKUP_FILE_EXTS } = require('./env')
-const { randomTextWithinAlphabetNums, FILE_PREFIX, nextInt, MD5, SHA1 } = require('./common')
+const { randomTextWithinAlphabetNums, FILE_PREFIX, nextInt, MD5, SHA1, scanDirTracks } = require('./common')
 const path = require('path')
 //显示模式 默认/简单(小屏幕)
 const DEFAULT_LAYOUT = 'default', SIMPLE_LAYOUT = 'simple'
@@ -271,15 +271,6 @@ const registryGlobalListeners = () => {
         setupAppLayout(DEFAULT_LAYOUT, zoom, isInit)
     })
 
-    ipcMain.handle('open-dirs', async (event, ...args) => {
-        const result = await dialog.showOpenDialog(mainWin, {
-            title: '请选择文件夹',
-            properties: ['openDirectory']
-        })
-        if (result.canceled) return null
-        return result.filePaths
-    })
-
     ipcMain.handle('open-image', async (event, ...args) => {
         const result = await dialog.showOpenDialog(mainWin, {
             title: '请选择文件',
@@ -290,6 +281,39 @@ const registryGlobalListeners = () => {
         })
         return result.filePaths.map(item => (FILE_PREFIX + item))
     })
+
+    ipcMain.handle('open-dirs', async (event, ...args) => {
+        const result = await dialog.showOpenDialog(mainWin, {
+            title: '请选择文件夹',
+            properties: ['openDirectory']
+        })
+        if (result.canceled) return null
+        return result.filePaths
+    })
+
+    ipcMain.handle('open-audio-dirs', async (event, ...args) => {
+        const dirs = args[0]
+        const deep = args.length > 1 ? args[1] : false
+        const result = []
+        for (var i = 0; i < dirs.length; i++) {
+            const tracks = await scanDirTracks(dirs[i], null, deep)
+            result.push(tracks)
+        }
+        return result
+    })
+
+    ipcMain.handle('open-audios', async (event, ...args) => {
+        const result = await dialog.showOpenDialog(mainWin, {
+            title: '请选择文件',
+            filters: [
+                { name: 'Audios', extensions: AUDIO_EXTS }
+            ],
+            properties: ['openFile', 'multiSelections']
+        })
+        if (result.canceled) return null
+        return parseTracks(result.filePaths)
+    })
+
 
 
 

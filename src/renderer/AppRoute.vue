@@ -137,6 +137,10 @@ provide('appRoute', {
         exploreMode = resolveExploreMode(exploreMode)
         return visitCommonRoute(`/${exploreMode}/local/create`)
     },
+    visitLocalPlaylistEdit: (id, exploreMode) => {
+        exploreMode = resolveExploreMode(exploreMode)
+        return visitCommonRoute(`/${exploreMode}/local/edit/${id}`)
+    }
 })
 </script>
 <template>
