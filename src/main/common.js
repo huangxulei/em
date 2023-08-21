@@ -178,6 +178,26 @@ async function createTrackFromMetadata(file) {
     return null
 }
 
+async function parseImageDataFromFile(file) {
+    let coverData = null
+
+    file = transformPath(file)
+    const statResult = statSync(file, { throwIfNoEntry: false })
+    if (!statResult) return coverData
+
+    try {
+        const metadata = await MusicMetadata.parseFile(file, { duration: true })
+        const { picture } = metadata.common
+        //封面
+        const cover = MusicMetadata.selectCover(picture)
+        //if (cover) coverData = `data:${cover.format};base64,${cover.data.toString('base64')}`
+        if (cover) coverData = { format: cover.format, data: cover.data, text: `data:${cover.format};base64,${cover.data.toString('base64')}` }
+    } catch (error) {
+        console.log(error)
+    }
+    return coverData
+}
+
 async function parseTracks(audioFiles) {
     const tracks = []
     for (const file of audioFiles) {
@@ -233,6 +253,7 @@ function readText(file, encoding) {
 module.exports = {
     randomText,
     randomTextWithinAlphabetNums,
+    parseImageDataFromFile,
     FILE_PREFIX,
     IMAGE_PROTOCAL,
     ALPHABET_NUMS,

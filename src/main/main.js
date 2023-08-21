@@ -1,7 +1,8 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu, Tray } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, Menu, protocol, Tray } = require('electron')
 const { isMacOS, isWinOS, useCustomTrafficLight, isDevEnv, USER_AGENTS, AUDIO_EXTS, IMAGE_EXTS,
     APP_ICON, AUDIO_PLAYLIST_EXTS, BACKUP_FILE_EXTS } = require('./env')
-const { randomTextWithinAlphabetNums, FILE_PREFIX, nextInt, MD5, SHA1, scanDirTracks, readText } = require('./common')
+const { randomTextWithinAlphabetNums, FILE_PREFIX, nextInt, MD5, SHA1,
+    scanDirTracks, readText, IMAGE_PROTOCAL, parseImageDataFromFile } = require('./common')
 const path = require('path')
 //显示模式 默认/简单(小屏幕)
 const DEFAULT_LAYOUT = 'default', SIMPLE_LAYOUT = 'simple'
@@ -27,11 +28,44 @@ const startup = () => {
     registryGlobalListeners()
 }
 
+//清理缓存
+const clearCaches = () => {
+    if (!mainWin) return
+    try {
+        const { session } = mainWin.webContents
+        const cacheSizeLimit = 256 * 1024 * 1024
+        if (session.getCacheSize() > cacheSizeLimit) {
+            session.clearCache()
+        }
+        session.clearCodeCaches({ urls: [] })
+    } catch (error) {
+        if (isDevEnv) console.log(error)
+    }
+}
+
 const init = () => {
     app.whenReady().then(() => {
         //全局UserAgent
         app.userAgentFallback = USER_AGENTS[nextInt(USER_AGENTS.length)]
         mainWin = createMainWindow()
+
+        clearCaches()
+
+        //自定义协议
+        const EMPTY_BUFFER = Buffer.from('')
+        protocol.registerBufferProtocol(IMAGE_PROTOCAL.scheme, async (request, callback) => {
+            const file = decodeURI(request.url.slice(IMAGE_PROTOCAL.prefix.length))
+            parseImageDataFromFile(file).then(result => {
+                let response = { data: EMPTY_BUFFER }
+                if (result) {
+                    const { format, data } = result
+                    response = { mimeType: format, data }
+                }
+                callback(response)
+            })
+        })
+
+
     })
     app.on('activate', (event) => {
         // On macOS it's common to re-create a window in the app when the
@@ -282,6 +316,12 @@ const registryGlobalListeners = () => {
         return result.filePaths.map(item => (FILE_PREFIX + item))
     })
 
+    ipcMain.handle('open-image-base64', async (event, ...args) => {
+        const file = args[0].trim().slice(IMAGE_PROTOCAL.prefix.length)
+        const imageResult = await parseImageDataFromFile(file)
+        return imageResult ? imageResult.text : null
+    })
+
     ipcMain.handle('open-dirs', async (event, ...args) => {
         const result = await dialog.showOpenDialog(mainWin, {
             title: '请选择文件夹',
@@ -321,8 +361,6 @@ const registryGlobalListeners = () => {
         return readText(`${lyricFile}.lrc`)
             || readText(`${lyricFile}.LRC`)
     })
-
-
 
 
 }

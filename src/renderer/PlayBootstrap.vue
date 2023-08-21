@@ -85,7 +85,42 @@ const markTrackSeekPending = (percent) => EventBus.emit('track-markSeekPending',
 //     traceRecentTrack(track)
 // })
 
+const setupCurrentMediaSession = async () => {
+    if ("mediaSession" in navigator) {
+        const track = currentTrack.value
+        if (!track) return
+        const { title, cover } = track
+        //TODO 本地歌曲可能使用在线封面，会导致数据不一致
+        // 暂时忽略，仍然使用旧封面，不去尝试进行更新，得不偿失
+        let coverSrc = cover
+        if (cover && cover.startsWith(IMAGE_PROTOCAL.prefix)) {
+            if (ipcRenderer) coverSrc = await ipcRenderer.invoke('open-image-base64', cover)
+            console.log(coverSrc)
+        }
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title,
+            artist: Track.artistName(track),
+            album: Track.albumName(track),
+            artwork: [{
+                src: coverSrc || 'default_cover.png',
+                sizes: "500x500",
+                type: "image/png",
+            }]
+        })
+
+        navigator.mediaSession.setActionHandler("previoustrack", playPrevTrack)
+        navigator.mediaSession.setActionHandler("nexttrack", playNextTrack)
+    }
+}
+
 EventBus.on('track-state', state => {
+
+    //播放刚开始时，更新MediaSession
+    if (playState.value == PLAY_STATE.INIT && state == PLAY_STATE.PLAYING) {
+        console.log('封面')
+        setupCurrentMediaSession()
+        resetAutoSkip()
+    }
     setPlayState(state)
     switch (state) {
         case PLAY_STATE.INIT:
@@ -104,6 +139,7 @@ EventBus.on('track-state', state => {
             break
     }
 })
+
 
 //提示并播放下一曲
 const toastAndPlayNext = (track, msg) => {
