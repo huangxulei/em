@@ -28,9 +28,7 @@ const handleRightClick = (event) => {
             <div class="img">
                 <slot name="left-img"></slot>
             </div>
-            <div class="text">
-                {{ text }}
-            </div>
+            <div class="text">{{ text }}</div>
         </div>
         <div class="right-btn" @click="handleRightClick">
             <slot name="right-img"></slot>

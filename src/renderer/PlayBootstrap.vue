@@ -95,7 +95,6 @@ const setupCurrentMediaSession = async () => {
         let coverSrc = cover
         if (cover && cover.startsWith(IMAGE_PROTOCAL.prefix)) {
             if (ipcRenderer) coverSrc = await ipcRenderer.invoke('open-image-base64', cover)
-            console.log(coverSrc)
         }
         navigator.mediaSession.metadata = new MediaMetadata({
             title,
@@ -117,8 +116,7 @@ EventBus.on('track-state', state => {
 
     //播放刚开始时，更新MediaSession
     if (playState.value == PLAY_STATE.INIT && state == PLAY_STATE.PLAYING) {
-        console.log('封面')
-        setupCurrentMediaSession()
+        //setupCurrentMediaSession()//播放时候处理图片
         resetAutoSkip()
     }
     setPlayState(state)

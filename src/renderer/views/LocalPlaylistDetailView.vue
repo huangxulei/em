@@ -10,6 +10,7 @@ import { usePlatformStore } from '../store/platformStore';
 import { toYyyymmddHhMmSs } from '../../common/Times';
 import PlayAddAllBtn from '../components/PlayAddAllBtn.vue';
 import AddFolderFileBtn from '../components/addfolderfilebtn.vue';
+import BatchActionBtn from '../components/BatchActionBtn.vue';
 import { useIpcRenderer } from "../../common/Utils";
 
 const ipcRenderer = useIpcRenderer()
@@ -18,7 +19,7 @@ const props = defineProps({
     exploreMode: String,
     id: String
 })
-const { visitLocalPlaylistEdit } = inject('appRoute')
+const { visitLocalPlaylistEdit, visitBatchLocalPlaylist } = inject('appRoute')
 
 const { addTracks, resetQueue, playNextTrack } = usePlayStore()
 const { showToast, showFailToast } = useAppCommonStore()
@@ -104,8 +105,6 @@ const addFiles = async () => {
     //if (!success) showFailToast(msg)
 }
 
-
-
 onMounted(() => {
     resetView()
     loadContent()
@@ -145,6 +144,9 @@ onMounted(() => {
                     <AddFolderFileBtn :leftAction="addFolders" :rightAction="addFiles" class="btn-spacing"
                         :disabled="isLoading">
                     </AddFolderFileBtn>
+                    <BatchActionBtn :deleteBtn="true" :leftAction="() => visitBatchLocalPlaylist(id)"
+                        :rightAction="removeAll" :disabled="isLoading">
+                    </BatchActionBtn>
                 </div>
             </div>
         </div>

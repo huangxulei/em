@@ -36,6 +36,11 @@ const routes = [
         path: '/:exploreMode/local/:id',
         props: true,
         component: LocalPlaylistDetailView
+    },
+    {  //批量操作
+        path: '/:exploreMode/batch/:source/:id',
+        props: true,
+        component: BatchActionView
     }
 ]
 
