@@ -24,6 +24,9 @@ import { toYyyymmddHhMmSs } from '../../common/Times';
 const { currentPlatformCode } = storeToRefs(usePlatformStore())
 const { updateCurrentPlatform } = usePlatformStore()
 
+const { localPlaylists } = storeToRefs(useLocalMusicStore())
+const { getLocalPlaylist, removeFromLocalPlaylist, removeLocalPlaylist } = useLocalMusicStore()
+
 //来至于 router 
 const props = defineProps({
     source: String, //数据源，所属功能/模块
@@ -38,6 +41,11 @@ const activeTab = ref(0)
 const tabTipText = ref("")
 const currentTabView = shallowRef(null)
 const tabData = reactive([])
+
+const checkedData = reactive([])
+const checkedAll = ref(false)
+const ignoreCheckAllEvent = ref(false)
+const sourceItem = reactive({})
 
 const typeTabs = [
     {
@@ -65,11 +73,11 @@ const getFirstVisibleTabIndex = () => {
     return 0
 }
 
-//TODO
+//操作按钮显示
 const actionShowCtl = reactive({
-    playBtn: false,
-    addToBtn: false,
-    moveToBtn: false,
+    playBtn: false,//播放歌曲
+    addToBtn: false,//添加到当前列表
+    moveToBtn: false,//移动
     addToQueueBtn: false,
     deleteBtn: true,
     exportBtn: false
@@ -101,15 +109,6 @@ const switchTab = () => {
             addToBtn: true,
             deleteBtn: true
         })
-        if (isCustomPlaylist()) {
-            Object.assign(actionShowCtl, {
-                playBtn: true,
-                addToBtn: true,
-                moveToBtn: true,
-                deleteBtn: true,
-            })
-            tabData.push(...loadCustomPlaylist(platform))
-        }
         if (isLocalMusic()) {
             Object.assign(actionShowCtl, {
                 playBtn: true,
@@ -122,21 +121,28 @@ const switchTab = () => {
         }
         currentTabView.value = SongListControl
     } else if (activeTab.value == 1) {
-        if (isFavorites()) tabData.push(...filterByTitleWithKeyword(getFavoritePlaylilsts.value(platform)))
-        if (isRecents()) tabData.push(...filterByTitleWithKeyword(getRecentPlaylilsts.value(platform)))
         if (isLocalMusic()) {
             Object.assign(actionShowCtl, {
                 addToQueueBtn: true,
                 deleteBtn: true,
                 exportBtn: true
             })
-            tabData.push(...filterByTitleWithKeyword(localPlaylists.value))
+            tabData.push(...localPlaylists())
         }
         currentTabView.value = PlaylistsControl
     }
     updateTipText()
     //TODO
     EventBus.emit("batchView-show")
+}
+const loadLocalPlaylist = () => {
+    const playlist = getLocalPlaylist(props.id)
+    Object.assign(sourceItem, { ...playlist })
+    return playlist.data
+}
+
+const updateTipText = () => {
+    tabTipText.value = typeTabs[activeTab.value].text.replace('0', checkedData.length)
 }
 
 const visitTab = (index) => {
