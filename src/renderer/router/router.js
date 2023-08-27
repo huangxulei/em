@@ -4,6 +4,7 @@ import PlaylistDetailView from '../views/PlaylistDetailView.vue'
 import LocalMusicView from '../views/LocalMusicView.vue';
 import LocalPlaylistEditView from '../views/LocalPlaylistEditView.vue'
 import LocalPlaylistDetailView from '../views/LocalPlaylistDetailView.vue'
+import BatchActionView from '../views/BatchActionView.vue'
 
 const routes = [
     {

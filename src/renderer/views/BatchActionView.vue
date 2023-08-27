@@ -15,7 +15,6 @@ import { usePlatformStore } from '../store/platformStore';
 import { usePlayStore } from '../store/playStore';
 import { useSettingStore } from '../store/settingStore';
 import { useLocalMusicStore } from '../store/localMusicStore';
-import AlbumListControl from '../components/AlbumListControl.vue';
 import PlaylistsControl from '../components/playlistscontrol.vue'
 import SongListControl from '../components/SongListControl.vue';
 import { useIpcRenderer } from '../../common/Utils';
@@ -195,6 +194,12 @@ onMounted(() => {
                     </svg>
                     <span>{{ (checkedAll ? "取消全选" : "全选") }}</span>
                 </div>
+            </div>
+            <div class="content" ref="contentRef">
+                <component :is="currentTabView" :data="tabData" :checkbox="true"
+                    :checkedAll="checkedAll" :checkChangedFn="onCheckChanged"
+                    :ignoreCheckAllEvent="ignoreCheckAllEvent" :checkedData="checkedData">
+                </component>
             </div>
         </div>
     </div>

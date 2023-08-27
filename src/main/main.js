@@ -362,6 +362,41 @@ const registryGlobalListeners = () => {
     })
 
 
+    ipcMain.handle('show-confirm', async (event, ...args) => {
+        const { title, msg } = args[0]
+        const result = await dialog.showMessageBox(mainWin, {
+            message: msg,
+            type: "warning",
+            title: (title || '确认'),
+            buttons: ["确定", "取消"],
+            cancelId: 1
+        })
+        return result.response == 0
+    })
+
+    ipcMain.handle('open-audio-playlist', async (event, ...args) => {
+        const result = await dialog.showOpenDialog(mainWin, {
+            title: '请选择Audio Playlist文件',
+            filters: [{ name: 'Playlist文件', extensions: AUDIO_PLAYLIST_EXTS }],
+            properties: ['openFile']
+        })
+        if (result.canceled) return null
+        return result.filePaths[0]
+    })
+
+    ipcMain.handle('parse-audio-playlist', async (event, ...args) => {
+        const file = args[0].trim()
+        let result = null
+        if (file.toLowerCase().endsWith(`.${AUDIO_PLAYLIST_EXTS[2]}`)) {
+            result = await parsePlsFile(file)
+        } else if (file.toLowerCase().endsWith(`.${AUDIO_PLAYLIST_EXTS[0]}`)
+            || file.toLowerCase().endsWith(`.${AUDIO_PLAYLIST_EXTS[1]}`)) {
+            result = await parseM3uFile(file)
+        }
+        return result
+    })
+
+
 }
 
 const setupAppWindowZoom = (zoom, noResize) => {

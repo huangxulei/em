@@ -15,16 +15,55 @@ import { useLocalMusicStore } from '../store/localMusicStore';
 import { useAppCommonStore } from '../store/appCommonStore';
 import { useSettingStore } from '../store/settingStore';
 import { isDevEnv, useIpcRenderer } from "../../common/Utils";
-const { visitLocalPlaylistCreate } = inject('appRoute')
-const { localPlaylists, importTaskCount } = storeToRefs(useLocalMusicStore())
+const { visitLocalPlaylistCreate, visitBatchLocalMusic } = inject('appRoute')
+const { localPlaylists, importTaskCount, } = storeToRefs(useLocalMusicStore())
+const { addLocalPlaylist, resetAll,
+    increaseImportTaskCount, decreaseImportTaskCount } = useLocalMusicStore()
 const { showToast, showFailToast } = useAppCommonStore()
 
 const localMusicRef = ref(null)
 const back2TopBtnRef = ref(null)
+const ipcRenderer = useIpcRenderer()
 
 const isLoading = ref(false)
 const setLoading = (value) => isLoading.value = value
 
+const importPlaylist = async () => {
+    if (!ipcRenderer) return
+    const file = await ipcRenderer.invoke('open-audio-playlist')
+    if (file) {
+        increaseImportTaskCount()
+        const result = await ipcRenderer.invoke('parse-audio-playlist', file)
+        let msg = '导入歌单失败！', success = false
+        if (result) {
+            const { name, data, total } = result
+            if (name && data && data.length > 0) {
+                try {
+                    addLocalPlaylist(name, null, null, null, data)
+                } catch (error) {
+                    if (isDevEnv()) console.log(error)
+                }
+                const numText = total ? `${data.length} / ${total}` : `${data.length}`
+                msg = `导入歌单已完成！<br>共${numText}首歌曲！`
+                success = true
+            }
+        }
+        decreaseImportTaskCount()
+        if (success) showToast(msg)
+        if (!success) showFailToast(msg)
+    }
+}
+
+const removeAll = async () => {
+    if (localPlaylists.value.length < 1) return
+
+    let ok = true
+    if (isShowDialogBeforeClearLocalMusics.value) ok = await showConfirm({ msg: '确定要清空本地歌曲吗？' })
+    if (!ok) return
+
+    showToast('本地歌曲已全部清空!')
+    resetAll()
+}
 </script>
 <template>
     <div id="local-music-view" ref="localMusicRef">

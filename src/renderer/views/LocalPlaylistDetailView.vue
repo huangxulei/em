@@ -13,13 +13,15 @@ import AddFolderFileBtn from '../components/addfolderfilebtn.vue';
 import BatchActionBtn from '../components/BatchActionBtn.vue';
 import { useIpcRenderer } from "../../common/Utils";
 
+const { visitLocalPlaylistEdit, visitBatchLocalPlaylist } = inject('appRoute')
+const { showConfirm } = inject('appCommon')
+
 const ipcRenderer = useIpcRenderer()
 
 const props = defineProps({
     exploreMode: String,
     id: String
 })
-const { visitLocalPlaylistEdit, visitBatchLocalPlaylist } = inject('appRoute')
 
 const { addTracks, resetQueue, playNextTrack } = usePlayStore()
 const { showToast, showFailToast } = useAppCommonStore()
@@ -103,6 +105,17 @@ const addFiles = async () => {
     //success = true
     //if (success) showToast(msg)
     //if (!success) showFailToast(msg)
+}
+
+const removeAll = async () => {
+    if (!detail.data || detail.data.length < 1) return
+
+    let ok = true
+    if (isShowDialogBeforeBatchDelete.value) ok = await showConfirm({ msg: '确定要清空歌单吗？' })
+    if (!ok) return
+
+    removeAllFromLocalPlaylist(props.id)
+    showToast("全部歌曲已删除！")
 }
 
 onMounted(() => {

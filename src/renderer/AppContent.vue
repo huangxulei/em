@@ -57,6 +57,25 @@ onMounted(() => {
 
 })
 
+let isConfirmDialogShowing = false
+const showConfirm = async ({ title, msg }) => {
+    if (!ipcRenderer || isConfirmDialogShowing) return false
+    isConfirmDialogShowing = true
+    const ok = await ipcRenderer.invoke('show-confirm', {
+        title: title || '确认',
+        msg
+    })
+    isConfirmDialogShowing = false
+    return ok
+}
+
+
+provide('appCommon', {
+    showConfirm,
+    searchAction,
+    searchBarPlaceholder,
+})
+
 </script>
 <template>
     <Themes>
