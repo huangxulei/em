@@ -15,6 +15,7 @@ export class Playlist {
     static CUSTOM_ID_PREFIX = "CMP_"
     //本地自建歌单
     static LOCAL_PLAYLIST_ID_PREFIX = "LLP_"
+
     constructor(id, platform, cover, title, url, about, data, total, type, listenNum) {
         this.id = id
         this.platform = platform

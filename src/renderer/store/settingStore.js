@@ -139,6 +139,14 @@ export const useSettingStore = defineStore('setting', {
             userHomeShortcut: true,
             simpleLayoutShortcut: true,
         },
+        /* 对话框 */
+        dialog: {
+            batchDelete: true,
+            clearRecents: true,
+            resetSetting: true,
+            clearLocalMusics: true,
+            clearFreeFM: true,
+        },
     }),
     getters: {
         isVipTransferEnable() {
@@ -206,7 +214,10 @@ export const useSettingStore = defineStore('setting', {
         },
         isPlaybackQueueAutoPositionOnShow() {
             return this.track.playbackQueueAutoPositionOnShow
-        }
+        },
+        isShowDialogBeforeBatchDelete() {
+            return this.dialog.batchDelete
+        },
     },
     actions: {
         setThemeIndex(index, type) {

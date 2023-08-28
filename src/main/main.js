@@ -361,7 +361,6 @@ const registryGlobalListeners = () => {
             || readText(`${lyricFile}.LRC`)
     })
 
-
     ipcMain.handle('show-confirm', async (event, ...args) => {
         const { title, msg } = args[0]
         const result = await dialog.showMessageBox(mainWin, {

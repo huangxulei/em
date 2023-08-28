@@ -36,7 +36,7 @@ export const useLocalMusicStore = defineStore('localMusic', {
         },
         updateLocalPlaylist(id, title, tags, about, cover) {
             if (this.localPlaylists.length < 1) return
-            const index = this.localPlaylists.findIndex(e => e.id === id)
+            const index = this.localPlaylists.findIndex(e => e.id === id)//给定id下标的值
             if (index < 0) return
 
             const updated = Date.now()

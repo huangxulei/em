@@ -71,9 +71,7 @@ const showConfirm = async ({ title, msg }) => {
 
 
 provide('appCommon', {
-    showConfirm,
-    searchAction,
-    searchBarPlaceholder,
+    showConfirm
 })
 
 </script>

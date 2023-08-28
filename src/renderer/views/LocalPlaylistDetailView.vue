@@ -32,7 +32,7 @@ const { isUseDndForAddLocalTracksEnable, isUseDeeplyScanForDirectoryEnable,
 
 const playlistDetailRef = ref(null)
 const back2TopBtnRef = ref(null)
-const detail = reactive({})
+const detail = reactive({ data: [] })
 let offset = 0, page = 1, limit = 1000, total = 0
 let markScrollTop = 0
 const isLoading = ref(false)
@@ -117,6 +117,17 @@ const removeAll = async () => {
     removeAllFromLocalPlaylist(props.id)
     showToast("全部歌曲已删除！")
 }
+
+watch([currentPlatformCode], loadContent)
+
+onActivated(() => {
+    loadContent()
+})
+
+watch(() => props.id, () => {
+    resetView()
+    loadContent()
+})
 
 onMounted(() => {
     resetView()
