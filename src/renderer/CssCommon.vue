@@ -83,6 +83,20 @@ textarea {
   cursor: default !important;
 }
 
+.checkbox {
+  display: flex;
+  align-items: center;
+}
+
+.checkbox svg {
+  fill: var(--button-icon-btn-color) !important;
+  cursor: pointer;
+}
+
+.checkbox .checked-svg {
+  fill: var(--content-highlight-color) !important;
+}
+
 ::-webkit-scrollbar {
   width: var(--others-scrollbar-width);
 }

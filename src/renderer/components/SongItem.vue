@@ -33,6 +33,7 @@ const toggleCheck = () => {
     const { checkbox, checkChangedFn, checked } = props
     if (!checkbox) return
     setChecked(!isChecked.value)
+    //点击选择 
     if (checkChangedFn) checkChangedFn(isChecked.value, { index: props.index, ...props.data })
 }
 
@@ -67,6 +68,12 @@ const isExtra1Available = () => {
     return false
 }
 
+EventBus.on("checkbox-refresh", () => setChecked(false))
+
+watch(() => props.checked, (nv, ov) => {
+    if (props.ignoreCheckAllEvent) return
+    setChecked(nv)
+})
 </script>
 <template>
     <div class="song-item" @click="toggleCheck">
@@ -92,7 +99,7 @@ const isExtra1Available = () => {
         <div v-show="!checkbox" class="sqno">{{ index + 1 }}</div>
         <div class="title-wrap">
             <span v-html="data.filename || data.title" class="limitedSpan"></span>
-            <div class="action">
+            <div class="action" :class="{ hidden: checkbox }">
                 <svg @click="playItem" width="18" height="18" class="play-btn" viewBox="0 0 139 139" xml:space="preserve"
                     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                     <path

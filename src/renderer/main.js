@@ -45,7 +45,7 @@ app.use(pinia)
         log: false,
         lifecycle: {
             error: (el) => {
-                // console.log(el)
+                console.log(el)
             }
         }
     })
