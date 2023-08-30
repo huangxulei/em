@@ -236,5 +236,8 @@ export const useAppCommonStore = defineStore('appCommon', {
         showFailToast(text, callback, delay) {
             this.doToast(text || "操作失败！", 1, callback, delay || 2233)
         },
+        updateCommonCtxItem(value) {
+            this.commonCtxItem = value
+        }
     }
 })

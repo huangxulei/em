@@ -26,7 +26,7 @@ const { updateCurrentPlatform } = usePlatformStore()
 
 const { localPlaylists } = storeToRefs(useLocalMusicStore())
 const { getLocalPlaylist, removeFromLocalPlaylist, removeLocalPlaylist } = useLocalMusicStore()
-const { showToast } = useAppCommonStore()
+const { showToast, updateCommonCtxItem, hideAllCtxMenus, } = useAppCommonStore()
 
 //来至于 router 
 const props = defineProps({
@@ -206,6 +206,41 @@ onMounted(() => {
     updateCurrentPlatform(0)
     visitTab(getFirstVisibleTabIndex())
 })
+
+//TODO
+const showAddToList = (event, dataType, elSelector, actionType) => {
+    event.stopPropagation()
+    const el = document.querySelector(elSelector)
+    const clientRect = el.getBoundingClientRect()
+    const { x, y, width, height, bottom } = clientRect
+    const { clientX, clientY } = event
+    EventBus.emit("commonCtxMenu-init", { dataType, actionType })
+    EventBus.emit("commonCtxMenu-show", {
+        event: { x, y: (bottom + 3), clientX, clientY },
+        value: sortCheckData()
+    })
+}
+
+let eventMode = 0
+const doToggleCheckedPopupMenu = (event, actionType) => {
+    const mode = isLocalMusic() ? 10 : 6
+    const elSelector = (actionType == 1) ? "#batch-action-view .moveToBtn" : "#batch-action-view .addToBtn"
+    if (commonCtxMenuShow.value && eventMode == mode) {
+        hideAllCtxMenus()
+    } else {
+        hideAllCtxMenus()
+        showAddToList(event, mode, elSelector, actionType)
+    }
+    eventMode = mode
+}
+
+const toggleAddCheckedMenu = (event) => {
+    doToggleCheckedPopupMenu(event)
+}
+
+const toggleMoveCheckedMenu = (event) => {
+    doToggleCheckedPopupMenu(event, 1)
+}
 </script>
 <template>
     <div id="batch-action-view">

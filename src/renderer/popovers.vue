@@ -4,14 +4,20 @@ import { storeToRefs } from 'pinia';
 import { useAppCommonStore } from './store/appCommonStore';
 import { useSettingStore } from './store/settingStore';
 import Notification from './components/Notification.vue';
+import CommonContextMenu from './components/CommonContextMenu.vue';
 import PlaylistCategoryView from './views/PlaylistCategoryView.vue';
 import PlayingView from './views/PlayingView.vue';
 import VisualPlayingView from './views/VisualPlayingView.vue';
 
 const currentPlayingView = shallowRef(null)
+const ctxMenuPosStyle = reactive({ left: -999, top: -999 })
+const ctxSubmenuPosStyle = reactive({ left: -999, top: -999 })
+let ctxMenuPos = null, submenuItemNums = 0
+const colorPickerToolbarRef = ref(null)
+const gradientColorToolbarRef = ref(null)
 
 const { playingViewShow, commonNotificationShow, commonNotificationText,
-    commonNotificationType, playlistCategoryViewShow, } = storeToRefs(useAppCommonStore())
+    commonNotificationType, playlistCategoryViewShow, commonCtxMenuShow, commonCtxMenuData, commonCtxMenuSeparatorNums } = storeToRefs(useAppCommonStore())
 const { isDefaultClassicLayout } = storeToRefs(useSettingStore())
 const { playbackQueueViewShow, playingViewThemeIndex, } = storeToRefs(useAppCommonStore())
 
@@ -40,6 +46,10 @@ onMounted(() => {
 </script>
 <template>
     <div id="popovers">
+
+        <CommonContextMenu v-show="commonCtxMenuShow" :class="{ 'app-custom-theme-bg': appBackgroundScope.contextMenu }"
+            :posStyle="ctxMenuPosStyle" :data="commonCtxMenuData">
+        </CommonContextMenu>
 
         <!-- 浮层(Component、View)-->
         <transition name="fade-ex">
