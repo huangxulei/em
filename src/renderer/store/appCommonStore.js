@@ -31,7 +31,7 @@ export const useAppCommonStore = defineStore('appCommon', {
         commonCtxMenuData: [],
         commonCtxItem: {},  //菜单的上下文对象，用于公共参数传递
         commonCtxMenuCacheItem: {}, //菜单缓存对象，与具体点击的菜单项相关
-        commonCtxMenuSeparatorNums: 0,
+        commonCtxMenuSeparatorNums: 0,//分隔符 数量
         addToListSubmenuShow: false,
         artistListSubmenuShow: false,
         exitToHomeBtnShow: false,
@@ -201,6 +201,11 @@ export const useAppCommonStore = defineStore('appCommon', {
             // this.hideArtistCategoryView()
             // this.hideRadioCategoryView()
         },
+        hideAllCtxMenus() {
+            this.hideCommonCtxMenu()
+            // this.hideAddToListSubmenu()
+            // this.hideArtistListSubmenu()
+        },
         setCommonNotificationType(type) {
             this.commonNotificationType = type || 0
         },
@@ -238,6 +243,28 @@ export const useAppCommonStore = defineStore('appCommon', {
         },
         updateCommonCtxItem(value) {
             this.commonCtxItem = value
-        }
+        },
+        updateCommonCtxMenuCacheItem(value) {
+            this.commonCtxMenuCacheItem = value
+        },
+        showCommonCtxMenu(value) {
+            this.commonCtxMenuShow = true
+            this.updateCommonCtxMenuCacheItem(value)
+        },
+        hideCommonCtxMenu(clearCache) {
+            this.commonCtxMenuShow = false
+            if (clearCache) this.updateCommonCtxMenuCacheItem(null)
+        },
+        setCommonCtxMenuData(data) {
+            this.commonCtxMenuData.length = 0
+            if (data) {
+                let spCnt = 0
+                data.forEach(item => {
+                    this.commonCtxMenuData.push(item)
+                    if (item.separator) ++spCnt
+                });
+                this.commonCtxMenuSeparatorNums = spCnt
+            }
+        },
     }
 })

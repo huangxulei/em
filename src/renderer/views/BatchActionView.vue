@@ -212,7 +212,7 @@ const showAddToList = (event, dataType, elSelector, actionType) => {
     event.stopPropagation()
     const el = document.querySelector(elSelector)
     const clientRect = el.getBoundingClientRect()
-    const { x, y, width, height, bottom } = clientRect
+    const { x, bottom } = clientRect
     const { clientX, clientY } = event
     EventBus.emit("commonCtxMenu-init", { dataType, actionType })
     EventBus.emit("commonCtxMenu-show", {
