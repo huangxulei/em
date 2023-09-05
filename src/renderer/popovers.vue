@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, reactive, ref, shallowRef, watch } from 'vue';
 import { storeToRefs } from 'pinia';
+import EventBus from '../common/EventBus';
 import { useAppCommonStore } from './store/appCommonStore';
 import { useSettingStore } from './store/settingStore';
 import Notification from './components/Notification.vue';
@@ -13,13 +14,11 @@ const currentPlayingView = shallowRef(null)
 const ctxMenuPosStyle = reactive({ left: -999, top: -999 })
 const ctxSubmenuPosStyle = reactive({ left: -999, top: -999 })
 let ctxMenuPos = null, submenuItemNums = 0
-const colorPickerToolbarRef = ref(null)
-const gradientColorToolbarRef = ref(null)
 
-const { playingViewShow, commonNotificationShow, commonNotificationText,
-    commonNotificationType, playlistCategoryViewShow, commonCtxMenuShow, commonCtxMenuData, commonCtxMenuSeparatorNums } = storeToRefs(useAppCommonStore())
+const { playbackQueueViewShow, playingViewShow, playingViewThemeIndex, commonNotificationShow, commonCtxMenuData, commonCtxMenuSeparatorNums, commonNotificationType, playlistCategoryViewShow, commonCtxMenuShow, commonNotificationText } = storeToRefs(useAppCommonStore())
+const { hideCommonCtxMenu, showCommonCtxMenu } = useAppCommonStore()
+
 const { isDefaultClassicLayout } = storeToRefs(useSettingStore())
-const { playbackQueueViewShow, playingViewThemeIndex, } = storeToRefs(useAppCommonStore())
 
 const setupPlayingView = (index) => {
     index = index || playingViewThemeIndex.value
@@ -41,6 +40,46 @@ const appBackgroundScope = reactive({
 
 onMounted(() => {
     setupPlayingView()
+})
+
+const getCtxMenuAutoHeight = () => {
+    const total = commonCtxMenuData.value.length || 1
+    const spNums = commonCtxMenuSeparatorNums.value
+    const itemHeight = 38, padding = 15
+    return itemHeight * (total - spNums) + 7.5 * spNums + 2 * padding
+}
+
+const menuWidth = 208
+//菜单位置校正 
+const adjustMenuPosition = (event) => {
+    const { x, y, clientX, clientY } = event
+    const pos = { x, y }
+    const { clientWidth, clientHeight } = document.documentElement
+    const menuHeight = getCtxMenuAutoHeight(), padding = 10
+    const gapX = clientX + menuWidth - clientWidth
+    const tGapY = clientY - menuHeight
+    const bGapY = clientY + menuHeight - clientHeight
+    //右边界
+    if (gapX > 0) {
+        pos.x = pos.x - gapX - padding
+    }
+    //TODO 菜单有可能溢出顶部边界
+    if (bGapY > 0) { //溢出底部边界
+        pos.y = pos.y - menuHeight + padding / 2
+    }
+    return pos
+}
+
+const setMenuPosition = (event) => {
+    ctxMenuPos = adjustMenuPosition(event)
+    ctxMenuPosStyle.left = ctxMenuPos.x + 'px !important'
+    ctxMenuPosStyle.top = ctxMenuPos.y + 'px !important'
+}
+
+EventBus.on('commonCtxMenu-show', ({ event, value }) => {
+    hideCommonCtxMenu(true) //强制取消上次的显示
+    setMenuPosition(event)
+    showCommonCtxMenu(value)
 })
 
 </script>

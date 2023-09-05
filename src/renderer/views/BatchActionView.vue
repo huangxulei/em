@@ -23,9 +23,9 @@ import { toYyyymmddHhMmSs } from '../../common/Times';
 const { addTracks, playTrack } = usePlayStore()
 const { currentPlatformCode } = storeToRefs(usePlatformStore())
 const { updateCurrentPlatform } = usePlatformStore()
-
 const { localPlaylists } = storeToRefs(useLocalMusicStore())
 const { getLocalPlaylist, removeFromLocalPlaylist, removeLocalPlaylist } = useLocalMusicStore()
+const { commonCtxMenuShow, commonCtxItem } = storeToRefs(useAppCommonStore())
 const { showToast, updateCommonCtxItem, hideAllCtxMenus, } = useAppCommonStore()
 
 //来至于 router 
@@ -188,12 +188,6 @@ const playChecked = () => {
     refresh()
 }
 
-//TODO
-const refresh = () => {
-    EventBus.emit("checkbox-refresh")
-    visitTab(activeTab.value)
-}
-
 const addToQueue = () => {
     if (!actionShowCtl.addToQueueBtn) return
     const sortedData = sortCheckData()
@@ -241,6 +235,14 @@ const toggleAddCheckedMenu = (event) => {
 const toggleMoveCheckedMenu = (event) => {
     doToggleCheckedPopupMenu(event, 1)
 }
+
+//TODO
+const refresh = () => {
+    EventBus.emit("checkbox-refresh")
+    visitTab(activeTab.value)
+}
+
+EventBus.on("commonCtxMenuItem-finish", refresh)
 </script>
 <template>
     <div id="batch-action-view">
@@ -322,7 +324,7 @@ const toggleMoveCheckedMenu = (event) => {
                         </svg>
                     </template>
                 </SvgTextButton>
-                <SvgTextButton :disabled="checkedData.length < 1" text="导出" class="spacing" v-show="actionShowCtl.exportBtn"
+                <!-- <SvgTextButton :disabled="checkedData.length < 1" text="导出" class="spacing" v-show="actionShowCtl.exportBtn"
                     :leftAction="exportChecked">
                     <template #left-img>
                         <svg width="16" height="16" viewBox="0 0 853.89 768.12" xmlns="http://www.w3.org/2000/svg">
@@ -356,7 +358,7 @@ const toggleMoveCheckedMenu = (event) => {
                                 transform="translate(-833 -413)" />
                         </svg>
                     </template>
-                </SvgTextButton>
+                </SvgTextButton> -->
                 <SvgTextButton text="完成" :leftAction="backward" class="to-right"></SvgTextButton>
             </div>
             <div class="content" ref="contentRef">

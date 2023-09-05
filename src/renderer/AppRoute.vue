@@ -147,6 +147,14 @@ provide('appRoute', {
     visitBatchLocalPlaylist: (id) => {
         return visitCommonRoute(`/playlists/batch/local/${id}`)
     },
+    visitCustomPlaylistCreate: (exploreMode) => {
+        exploreMode = resolveExploreMode(exploreMode)
+        return visitCommonRoute(`/${exploreMode}/custom/create`)
+    },
+    visitLocalPlaylistCreate: (exploreMode) => {
+        exploreMode = resolveExploreMode(exploreMode)
+        return visitCommonRoute(`/${exploreMode}/local/create`)
+    }
 })
 </script>
 <template>

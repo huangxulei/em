@@ -15,9 +15,15 @@ const props = defineProps({
     data: Array
 })
 
+const { visitCustomPlaylistCreate, visitLocalPlaylistCreate } = inject('appRoute')
+const { playPlaylist } = inject('player')
+let currentDataType = -1
+
 const { commonCtxItem, commonCtxMenuCacheItem } = storeToRefs(useAppCommonStore())
 const { showToast, setCommonCtxMenuData, hideAllCtxMenus } = useAppCommonStore()
 const { playTrackLater, addTrack, removeTrack, addTracks, playTrack } = usePlayStore()
+const { addToLocalPlaylist, moveToLocalPlaylist } = useLocalMusicStore()
+const { localPlaylists } = storeToRefs(useLocalMusicStore())
 const { isLocalMusic } = usePlatformStore()
 
 const isLocalMusicType = (dataType) => (dataType == 10)
@@ -49,8 +55,6 @@ const playItemLater = () => {
     toastAndHideMenu("下一曲将为您播放！")
 }
 
-
-
 const showAddToList = (event, mode) => {
     const track = commonCtxMenuCacheItem.value
     if (!track || Playlist.isFMRadioType(track)) return
@@ -59,6 +63,9 @@ const showAddToList = (event, mode) => {
     // doShowAddToListSubmenu(event, 2, dataType)
 }
 
+const visitPlaylistCreate = () => {
+    isLocalMusicType(currentDataType) ? visitLocalPlaylistCreate() : visitCustomPlaylistCreate()
+}
 
 const MenuItems = {
     sp: {
@@ -103,27 +110,37 @@ const MenuItems = {
         menu: isMenu,
         action: (event) => showAddToList(event, 1),
     },
-    playCustom: {
-        name: '播放歌单',
-        icon: '<svg width="16" height="16" viewBox="0 0 139 139" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M117.037,61.441L36.333,14.846c-2.467-1.424-5.502-1.424-7.972,0c-2.463,1.423-3.982,4.056-3.982,6.903v93.188  c0,2.848,1.522,5.479,3.982,6.9c1.236,0.713,2.61,1.067,3.986,1.067c1.374,0,2.751-0.354,3.983-1.067l80.704-46.594  c2.466-1.422,3.984-4.054,3.984-6.9C121.023,65.497,119.502,62.866,117.037,61.441z"/></svg>',
-        action: playCustom,
-    },
     createCustom: {
         name: '新建歌单',
         icon: '<svg width="16" height="16" viewBox="0 0 768.02 554.57" xmlns="http://www.w3.org/2000/svg"><g id="Layer_2" data-name="Layer 2"><g id="Layer_1-2" data-name="Layer 1"><path d="M341.9,0q148,0,296,0C659,0,675,11.28,680.8,30.05c8.34,26.78-11.43,54.43-39.45,55.18-1.17,0-2.33,0-3.5,0q-296.46,0-592.93,0C22.37,85.25,5.32,71.87.87,50.78-4.36,26,14.59,1.39,39.94.12c2.49-.13,5-.11,7.5-.11Z"/><path d="M554.64,426.5h-6.72c-26.49,0-53,.17-79.47-.1a41.87,41.87,0,0,1-39.06-27.7,42.4,42.4,0,0,1,11.2-46.19,41.85,41.85,0,0,1,29.11-11.25q39.49,0,79,0h6V335c0-26-.12-52,0-78,.15-25.3,19.44-44.3,44.06-43.72,23.23.55,41.24,19.54,41.37,43.92.13,25.82,0,51.65,0,77.48v6.57h5.67c26.65,0,53.31-.11,80,.05,20.38.12,37.94,14.9,41.51,34.49,3.74,20.57-7.15,40.65-26.59,47.73a53.72,53.72,0,0,1-17.56,2.85c-25.66.3-51.32.13-77,.13h-6v6.36c0,26,.1,52,0,78-.11,20.74-13.1,37.68-32.17,42.41-27.42,6.8-53-13.28-53.24-42.11-.22-26-.05-52-.05-78Z"/><path d="M234.37,256q-94.73,0-189.44,0c-21.55,0-38.62-12.68-43.5-32.09-6.74-26.8,12.45-52.1,40.47-53.35,1.33-.06,2.67-.05,4-.05H423.78c21.17,0,37.53,11.12,43.49,29.46,9.15,28.13-11.52,55.87-42,56-36.32.15-72.64,0-109,0Z"/><path d="M170.91,426.5c-42.48,0-85,.07-127.45,0-20.94-.06-37.61-13.2-42.21-32.85-6.18-26.41,13.5-52,40.6-52.3,23.82-.27,47.65-.07,71.47-.07q92.46,0,184.93,0c24.55,0,43.52,19.37,43.12,43.58-.38,23.41-19.15,41.53-43.51,41.61-40,.12-80,0-120,0Z"/></g></g></svg>',
         action: visitPlaylistCreate,
     },
-
-
 }
 
+const moveToAction = (dataType, item) => {
+    const tracks = []
+    const cache = commonCtxMenuCacheItem.value
+    if (Array.isArray(cache)) {
+        tracks.push(...cache)
+    } else {
+        tracks.push(item)
+    }
+    const fromId = commonCtxItem.value.id
+    const toId = item.id
 
+    const action = moveToLocalPlaylist
+    if (action) {
+        tracks.forEach(track => {
+            action(toId, fromId, track)
+        })
+        toastAndHideMenu("歌曲移动成功！")
+    }
+}
 
 const doInit = (data) => {
     hideAllCtxMenus()
     setCommonCtxMenuData(data)
 }
-
 
 //获取菜单 Menu.item的一个数组 
 /**
@@ -137,7 +154,7 @@ const initBatchActionPopupMenuData = (dataType, isMoveAction) => {
     const fixedItems = [MenuItems.addToQueue, MenuItems.createCustom]
     isMoveAction ? data.push(fixedItems[1]) : data.push(...fixedItems)
     //获取已建歌单 isLocalMusicType(dataType)  dataType==10
-    const playlists = isLocalMusicType(dataType) ? localPlaylists.value : customPlaylists.value
+    const playlists = localPlaylists.value
 
     playlists.forEach(item => {//循环歌单 其他歌单载入
         //跳过自身
@@ -145,11 +162,17 @@ const initBatchActionPopupMenuData = (dataType, isMoveAction) => {
         data.push({ //歌单名字 和动作 已建歌单没有icon 
             name: item.title,
             action: () => {
-                isMoveAction ? moveToAction(dataType, item) : addToAction(dataType, item)
+                moveToAction(dataType, item)
             }
         })
     })
     return data
+}
+
+const visitMenuItem = (item, index, event) => {
+    if (!item || !item.action) return
+    item.action(item, index, event)
+    EventBus.emit("commonCtxMenuItem-finish")
 }
 
 //--4
@@ -157,50 +180,8 @@ EventBus.on("commonCtxMenu-init", ({ dataType, actionType }) => {
     currentDataType = dataType
     let data = []
     switch (dataType) {
-        case 0: //在线音乐平台 - 歌单页、歌手页、专辑页 - 普通歌曲列表
-            data = [MenuItems.play, MenuItems.playLater,
-            MenuItems.sp, MenuItems.addToList, MenuItems.addFavorite,
-            MenuItems.sp, MenuItems.visitArtist, MenuItems.visitAlbum
-            /*,MenuItems.share,*/]
-            break;
-        case 1: //本地歌曲 - 歌单页 - 歌曲列表
-            const addToQueueMenuItem = Object.assign({}, { ...MenuItems.addToQueue })
-            addToQueueMenuItem.name = "添加到当前播放"
-            data = [MenuItems.play, addToQueueMenuItem, MenuItems.playLater,
-            MenuItems.sp, MenuItems.visitArtist, MenuItems.visitAlbum,
-            MenuItems.sp, MenuItems.removeFromLocal,]
-            break;
-        case 2: //我的主页 - 我的收藏 - 歌曲列表
-            data = [MenuItems.play, MenuItems.playLater, MenuItems.addToList,
-            MenuItems.sp, MenuItems.visitArtist, MenuItems.visitAlbum,
-            MenuItems.sp, /* MenuItems.share,*/ MenuItems.removeFromFavorite,]
-            break;
-        case 3: //我的主页 - 创建的歌单 - 歌单列表
-            data = [MenuItems.playCustom, MenuItems.editCustom,
-            MenuItems.batchCustom, MenuItems.removeCustom]
-            break;
-        case 4: //创建的歌单 - 歌曲列表
-            data = [MenuItems.play, MenuItems.playLater,
-            MenuItems.sp, MenuItems.addToList, MenuItems.moveToList, MenuItems.addFavorite,
-            MenuItems.sp, MenuItems.removeFromCustom
-            /*MenuItems.sp, MenuItems.share, */]
-            break;
-        case 5: //我的主页 - 最近播放 - 歌曲列表
-            data = [MenuItems.play, MenuItems.playLater, MenuItems.addToList,
-            MenuItems.sp, MenuItems.visitArtist, MenuItems.visitAlbum,
-            MenuItems.sp, MenuItems.addFavorite, MenuItems.removeSongFromRecent,]
-            break;
         case 6: //我的主页 - 批量操作 - 移动到菜单、移动到菜单 
             data = initBatchActionPopupMenuData(dataType, actionType == 1)
-            break;
-        case 8: //首页-收藏的歌单
-            data = [MenuItems.playPlaylist, MenuItems.removePlaylistFromFavorite]
-            break;
-        case 9: //当前播放列表
-            data = [MenuItems.play, MenuItems.playLater,
-            MenuItems.sp, MenuItems.addToListNoQueue(), MenuItems.addAllToListNoQueue(), MenuItems.addFavorite, /*MenuItems.share,*/
-            MenuItems.sp, MenuItems.visitArtist, MenuItems.visitAlbum,
-            MenuItems.sp, MenuItems.removeFromQueue,]
             break;
         case 10: //本地歌曲 - 批量操作 - 添加到菜单、移动到菜单 
             data = initBatchActionPopupMenuData(dataType, actionType == 1)
@@ -216,8 +197,7 @@ EventBus.on("commonCtxMenu-init", ({ dataType, actionType }) => {
             <div class="padding"></div>
             <div class="center">
                 <template v-for="(item, index) in data">
-                    <div class="menuItem" @mouseenter="(event) => showSubmenu(item, index, event)"
-                        @click="(event) => visitMenuItem(item, index, event)" v-show="!item.separator">
+                    <div class="menuItem" @click="(event) => visitMenuItem(item, index, event)" v-show="!item.separator">
                         <div v-html="item.icon"></div>
                         <div><span>{{ item.name }}</span></div>
                     </div>

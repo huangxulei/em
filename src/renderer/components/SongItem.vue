@@ -67,7 +67,7 @@ const isExtra1Available = () => {
     }
     return false
 }
-
+//全部恢复点击
 EventBus.on("checkbox-refresh", () => setChecked(false))
 
 watch(() => props.checked, (nv, ov) => {
