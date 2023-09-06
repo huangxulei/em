@@ -1,10 +1,11 @@
 <script setup>
-
+// 缓存
+const excludes = ['LocalMusicView', 'BatchActionView', 'LocalPlaylistEditView']
 </script>
 <template>
     <div id="default-main-content">
         <router-view v-slot="{ Component }">
-            <keep-alive :max="12">
+            <keep-alive :exclude="excludes" :max="12">
                 <component :is="Component" />
             </keep-alive>
         </router-view>

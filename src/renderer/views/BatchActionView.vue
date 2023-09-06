@@ -206,8 +206,10 @@ const showAddToList = (event, dataType, elSelector, actionType) => {
     event.stopPropagation()
     const el = document.querySelector(elSelector)
     const clientRect = el.getBoundingClientRect()
+    // div 左下角坐标位置 鼠标点击位置
     const { x, bottom } = clientRect
     const { clientX, clientY } = event
+
     EventBus.emit("commonCtxMenu-init", { dataType, actionType })
     EventBus.emit("commonCtxMenu-show", {
         event: { x, y: (bottom + 3), clientX, clientY },
@@ -241,6 +243,11 @@ const refresh = () => {
     EventBus.emit("checkbox-refresh")
     visitTab(activeTab.value)
 }
+
+watch([currentPlatformCode], () => {
+    const path = currentRoutePath()
+    if (path.includes("/batch/")) refresh()
+})
 
 EventBus.on("commonCtxMenuItem-finish", refresh)
 </script>
@@ -284,8 +291,7 @@ EventBus.on("commonCtxMenuItem-finish", refresh)
                     </svg>
                     <span>{{ (checkedAll ? "取消全选" : "全选") }}</span>
                 </div>
-                <SvgTextButton :disabled="checkedData.length < 1" text="播放" class="spacing" v-show="actionShowCtl.playBtn"
-                    :leftAction="playChecked" :rightAction="addToQueue">
+                <SvgTextButton :disabled="checkedData.length < 1" text="播放" class="spacing" v-show="actionShowCtl.playBtn" :leftAction="playChecked" :rightAction="addToQueue">
                     <template #left-img>
                         <svg width="16" height="16" viewBox="0 0 139 139" xml:space="preserve"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -294,8 +300,7 @@ EventBus.on("commonCtxMenuItem-finish", refresh)
                         </svg>
                     </template>
                     <template #right-img>
-                        <svg v-show="actionShowCtl.addToQueueBtn" width="16" height="16" viewBox="0 0 768.02 554.57"
-                            xmlns="http://www.w3.org/2000/svg">
+                        <svg v-show="actionShowCtl.addToQueueBtn" width="16" height="16" viewBox="0 0 768.02 554.57" xmlns="http://www.w3.org/2000/svg">
                             <g id="Layer_2" data-name="Layer 2">
                                 <g id="Layer_1-2" data-name="Layer 1">
                                     <path

@@ -12,7 +12,7 @@ import { isMacOS, isWinOS, useIpcRenderer } from '../common/Utils'
 import EventBus from '../common/EventBus';
 
 const { isSimpleLayout, getWindowZoom } = storeToRefs(useSettingStore())
-const { hidePlaybackQueueView, hideAllCategoryViews } = useAppCommonStore()
+const { hidePlaybackQueueView, hideAllCategoryViews, hideAllCtxMenus } = useAppCommonStore()
 const ipcRenderer = useIpcRenderer()
 const currentAppLayout = shallowRef(null)
 
@@ -46,6 +46,8 @@ const hideAllPopoverViews = () => {
     hidePlaybackQueueView()
     //隐藏全部分类
     hideAllCategoryViews()
+    //隐藏上下文菜单
+    hideAllCtxMenus()
 }
 
 onMounted(() => {

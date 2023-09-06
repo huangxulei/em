@@ -41,24 +41,28 @@ const appBackgroundScope = reactive({
 onMounted(() => {
     setupPlayingView()
 })
-
+//计算菜单的高度 
 const getCtxMenuAutoHeight = () => {
-    const total = commonCtxMenuData.value.length || 1
-    const spNums = commonCtxMenuSeparatorNums.value
-    const itemHeight = 38, padding = 15
+    const total = commonCtxMenuData.value.length || 1 //所有数量
+    const spNums = commonCtxMenuSeparatorNums.value //分隔符
+    const itemHeight = 38, padding = 15 //每个item 高度
     return itemHeight * (total - spNums) + 7.5 * spNums + 2 * padding
 }
 
 const menuWidth = 208
 //菜单位置校正 
 const adjustMenuPosition = (event) => {
+    // x y 左下角坐标 鼠标点击坐标 
     const { x, y, clientX, clientY } = event
     const pos = { x, y }
+    //校正 意义不大
     const { clientWidth, clientHeight } = document.documentElement
     const menuHeight = getCtxMenuAutoHeight(), padding = 10
     const gapX = clientX + menuWidth - clientWidth
+    console.log(gapX)
     const tGapY = clientY - menuHeight
     const bGapY = clientY + menuHeight - clientHeight
+    console.log(bGapY)
     //右边界
     if (gapX > 0) {
         pos.x = pos.x - gapX - padding
