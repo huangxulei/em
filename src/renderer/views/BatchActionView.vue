@@ -27,6 +27,7 @@ const { localPlaylists } = storeToRefs(useLocalMusicStore())
 const { getLocalPlaylist, removeFromLocalPlaylist, removeLocalPlaylist } = useLocalMusicStore()
 const { commonCtxMenuShow, commonCtxItem } = storeToRefs(useAppCommonStore())
 const { showToast, updateCommonCtxItem, hideAllCtxMenus, } = useAppCommonStore()
+const { isShowDialogBeforeBatchDelete } = storeToRefs(useSettingStore())
 
 //来至于 router 
 const props = defineProps({
@@ -139,6 +140,7 @@ const switchTab = () => {
 const loadLocalPlaylist = () => {
     const playlist = getLocalPlaylist(props.id)
     Object.assign(sourceItem, { ...playlist })
+    updateCommonCtxItem(playlist)//备份自己
     return playlist.data
 }
 
@@ -212,7 +214,7 @@ const showAddToList = (event, dataType, elSelector, actionType) => {
 
     EventBus.emit("commonCtxMenu-init", { dataType, actionType })
     EventBus.emit("commonCtxMenu-show", {
-        event: { x, y: (bottom + 3), clientX, clientY },
+        event: { x, y: (bottom + 3), clientX, clientY },//菜单下移3个像素
         value: sortCheckData()
     })
 }
@@ -236,6 +238,13 @@ const toggleAddCheckedMenu = (event) => {
 
 const toggleMoveCheckedMenu = (event) => {
     doToggleCheckedPopupMenu(event, 1)
+}
+
+const removeChecked = async () => {
+    if (checkedData.length < 1) return
+    let ok = true
+    if (isShowDialogBeforeBatchDelete.value) ok = await showConfirm({ msg: '确定要删除所选数据吗？' })
+    if (!ok) return
 }
 
 //TODO
@@ -343,7 +352,7 @@ EventBus.on("commonCtxMenuItem-finish", refresh)
                             </g>
                         </svg>
                     </template>
-                </SvgTextButton>
+                </SvgTextButton>-->
                 <SvgTextButton :disabled="checkedData.length < 1" text="删除" class="spacing" v-show="actionShowCtl.deleteBtn"
                     :leftAction="removeChecked">
                     <template #left-img>
@@ -363,7 +372,7 @@ EventBus.on("commonCtxMenuItem-finish", refresh)
                                 transform="translate(-833 -413)" />
                         </svg>
                     </template>
-                </SvgTextButton> -->
+                </SvgTextButton>
                 <SvgTextButton text="完成" :leftAction="backward" class="to-right"></SvgTextButton>
             </div>
             <div class="content" ref="contentRef">

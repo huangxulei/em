@@ -7,12 +7,11 @@ import { usePlatformStore } from './store/platformStore';
 import { useAppCommonStore } from './store/appCommonStore'
 import { useSettingStore } from './store/settingStore'
 
-const { isArtistDetailVisitable, isAlbumDetailVisitable,
-    updateCurrentPlatformByCode, isLocalMusic } = usePlatformStore()
+const { updateCurrentPlatformByCode } = usePlatformStore()
 const { exploreModeCode, isUserHomeMode } = storeToRefs(useAppCommonStore())
 const { setExploreMode, setArtistExploreMode, setRadioExploreMode,
     setUserHomeExploreMode, hidePlayingView, hidePlaybackQueueView,
-    setPlaylistExploreMode, hideVideoPlayingView, } = useAppCommonStore()
+    setPlaylistExploreMode, hideVideoPlayingView, hideAllCtxMenus, updateCommonCtxItem } = useAppCommonStore()
 const { isSimpleLayout } = storeToRefs(useSettingStore())
 const { switchToFallbackLayout } = useSettingStore()
 /* 全局Router设置  */
@@ -62,54 +61,63 @@ const highlightPlatform = (to) => {
     updateCurrentPlatformByCode(platform)
 }
 
+//清除之前的图层 
 const hideRelativeComponents = (to) => {
     hidePlayingView()
+    hideAllCtxMenus()
+    updateCommonCtxItem(null)
 }
+
+const createCommonRoute = (toPath, onRouteReady) => ({
+    path: toPath,
+    onRouteReady,
+    //跳转之前处理
+    beforeRoute: (toPath) => {
+        //hidePlayingView()
+        hideRelativeComponents()
+        // if (isSimpleLayout.value) switchToFallbackLayout()
+        // if (!toPath.includes('/artist/')) hidePlaybackQueueView()
+        // if (toPath.includes('/theme') ||
+        //     toPath.includes('/search') ||
+        //     toPath.includes('/setting')) {
+        //     if (isUserHomeMode.value) setPlaylistExploreMode()
+        // }
+        // EventBus.emit('app-beforeRoute', toPath)
+    }
+})
 
 const currentRoutePath = () => (router.currentRoute.value.path)
 const resolveExploreMode = (exploreMode) => (exploreMode || exploreModeCode.value)
-const resolveRoute = (route) => (typeof (route) == 'object' ? route : { toPath: route.toString() })
+const resolveRoute = (route) => (typeof (route) == 'object' ? route : { path: route.toString() })
+
+//TODO Reject是否需要实现待考虑
 const visitRoute = (route) => {
     return new Promise((resolve, reject) => {
         if (!route) {
+            //if(reject) reject()
             return
         }
-        const { toPath, onRoutReady, beforeRoute } = resolveRoute(route)
+        route = resolveRoute(route)
+        const { path: toPath, onRouteReady, beforeRoute } = route
         if (!toPath) {
+            //if(reject) reject()
             return
         }
         if (beforeRoute) beforeRoute(toPath)
         const fromPath = currentRoutePath()
         const isSame = (fromPath == toPath)
         if (isSame) {
+            //if(reject) reject()
             return
         }
-        if (onRoutReady) onRoutReady(toPath)
-        router.push(toPath)
+        if (onRouteReady) onRouteReady(toPath)
+        router.push(route)
         if (resolve) resolve()
-
     })
 }
 
-const createCommonRoute = (toPath, onRouteReady) => ({
-    path: toPath,
-    onRouteReady,
-    //不完全等价 router.beforeResovle()
-    beforeRoute: (toPath) => {
-        hideRelativeComponents()
-        if (isSimpleLayout.value) switchToFallbackLayout()
-        if (!toPath.includes('/artist/')) hidePlaybackQueueView()
-        if (toPath.includes('/theme') ||
-            toPath.includes('/search') ||
-            toPath.includes('/setting')) {
-            if (isUserHomeMode.value) setPlaylistExploreMode()
-        }
-        //EventBus.emit('app-beforeRoute', toPath)
-    }
-})
-
 const visitCommonRoute = (route) => {
-    return visitRoute(route)
+    return visitRoute(createCommonRoute(route))
 }
 
 setupRouter()
