@@ -30,7 +30,7 @@ export const useAppCommonStore = defineStore('appCommon', {
         commonCtxMenuShow: false,
         commonCtxMenuData: [],
         commonCtxItem: {},  //菜单的上下文对象，用于公共参数传递
-        commonCtxMenuCacheItem: {}, //菜单缓存对象，与具体点击的菜单项相关
+        commonCtxMenuCacheItem: {}, //缓存菜单操作的数据 
         commonCtxMenuSeparatorNums: 0,//分隔符 数量
         addToListSubmenuShow: false,
         artistListSubmenuShow: false,

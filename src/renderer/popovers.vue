@@ -82,8 +82,9 @@ const setMenuPosition = (event) => {
 
 EventBus.on('commonCtxMenu-show', ({ event, value }) => {
     hideCommonCtxMenu(true) //强制取消上次的显示
-    setMenuPosition(event)
+    setMenuPosition(event)//设置显示位置
     showCommonCtxMenu(value)
+    console.log(value)
 })
 
 </script>

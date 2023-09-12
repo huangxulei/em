@@ -152,6 +152,7 @@ const initBatchActionPopupMenuData = (dataType, isMoveAction) => {
     const data = []
     //['当前播放','新建歌单',...'已建歌单']
     const fixedItems = [MenuItems.addToQueue, MenuItems.createCustom]
+    // 两个位置 不同菜单选项 
     isMoveAction ? data.push(fixedItems[1]) : data.push(...fixedItems)
     //获取已建歌单 isLocalMusicType(dataType)  dataType==10
     const playlists = localPlaylists.value

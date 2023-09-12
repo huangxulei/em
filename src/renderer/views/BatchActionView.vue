@@ -35,6 +35,7 @@ const props = defineProps({
     id: String //记录ID
 })
 const { currentRoutePath, backward } = inject('appRoute')
+const { showConfirm } = inject('appCommon')
 const ipcRenderer = useIpcRenderer()
 
 const title = ref("")
@@ -181,7 +182,7 @@ const sortCheckData = () => {
     if (checkedData.length < 1) return
     return checkedData.sort((a, b) => (a.index - b.index))
 }
-
+//直接播放
 const playChecked = () => {
     const sortedData = sortCheckData()
     addTracks(sortedData)//id, track
@@ -189,7 +190,7 @@ const playChecked = () => {
     showToast("即将为您播放歌曲！")
     refresh()
 }
-
+//添加到播放列表
 const addToQueue = () => {
     if (!actionShowCtl.addToQueueBtn) return
     const sortedData = sortCheckData()
@@ -245,6 +246,19 @@ const removeChecked = async () => {
     let ok = true
     if (isShowDialogBeforeBatchDelete.value) ok = await showConfirm({ msg: '确定要删除所选数据吗？' })
     if (!ok) return
+
+    let deleteFn = null
+    if (activeTab.value == 0) {
+        if (isLocalMusic()) deleteFn = removeFromLocalPlaylist
+    }
+    if (deleteFn) {
+        if (activeTab.value == 0 && (isCustomPlaylist() || isLocalMusic())) {
+            const { id } = commonCtxItem.value
+            checkedData.forEach(item => deleteFn(id, item))
+        }
+        refresh()
+        showToast("删除操作成功!")
+    }
 }
 
 //TODO
