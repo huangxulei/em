@@ -28,9 +28,9 @@ export const useAppCommonStore = defineStore('appCommon', {
         commonNotificationImportant: false, //是否可以被新消息覆盖
         //通用上下文菜单
         commonCtxMenuShow: false,
-        commonCtxMenuData: [],
-        commonCtxItem: {},  //菜单的上下文对象，用于公共参数传递
-        commonCtxMenuCacheItem: {}, //缓存菜单操作的数据 
+        commonCtxMenuData: [],//菜单数据
+        commonCtxItem: {},  // 全部数据
+        commonCtxMenuCacheItem: {}, //选择的数据
         commonCtxMenuSeparatorNums: 0,//分隔符 数量
         addToListSubmenuShow: false,
         artistListSubmenuShow: false,

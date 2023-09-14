@@ -119,13 +119,13 @@ const MenuItems = {
 
 const moveToAction = (dataType, item) => {
     const tracks = []
-    const cache = commonCtxMenuCacheItem.value
+    const cache = commonCtxMenuCacheItem.value //被选择的数据
     if (Array.isArray(cache)) {
         tracks.push(...cache)
     } else {
         tracks.push(item)
     }
-    const fromId = commonCtxItem.value.id
+    const fromId = commonCtxItem.value.id //全部的数据
     const toId = item.id
 
     const action = moveToLocalPlaylist

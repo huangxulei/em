@@ -59,10 +59,8 @@ const adjustMenuPosition = (event) => {
     const { clientWidth, clientHeight } = document.documentElement
     const menuHeight = getCtxMenuAutoHeight(), padding = 10
     const gapX = clientX + menuWidth - clientWidth
-    console.log(gapX)
     const tGapY = clientY - menuHeight
     const bGapY = clientY + menuHeight - clientHeight
-    console.log(bGapY)
     //右边界
     if (gapX > 0) {
         pos.x = pos.x - gapX - padding
@@ -84,7 +82,6 @@ EventBus.on('commonCtxMenu-show', ({ event, value }) => {
     hideCommonCtxMenu(true) //强制取消上次的显示
     setMenuPosition(event)//设置显示位置
     showCommonCtxMenu(value)
-    console.log(value)
 })
 
 </script>
@@ -105,8 +102,7 @@ EventBus.on('commonCtxMenu-show', ({ event, value }) => {
 
         <!-- 通用通知 -->
         <transition>
-            <Notification class="common-ntf" v-show="commonNotificationShow"
-                :class="{ 'app-custom-theme-bg': appBackgroundScope.toast }">
+            <Notification class="common-ntf" v-show="commonNotificationShow" :class="{ 'app-custom-theme-bg': appBackgroundScope.toast }">
                 <template #text>
                     <svg v-show="commonNotificationType == 0" width="36" height="36" viewBox="0 0 938.64 938.69"
                         xmlns="http://www.w3.org/2000/svg">
