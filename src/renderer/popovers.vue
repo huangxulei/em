@@ -9,13 +9,16 @@ import CommonContextMenu from './components/CommonContextMenu.vue';
 import PlaylistCategoryView from './views/PlaylistCategoryView.vue';
 import PlayingView from './views/PlayingView.vue';
 import VisualPlayingView from './views/VisualPlayingView.vue';
+import PlaylistExportToolbar from './components/PlaylistExportToolbar.vue';
 
 const currentPlayingView = shallowRef(null)
 const ctxMenuPosStyle = reactive({ left: -999, top: -999 })
 const ctxSubmenuPosStyle = reactive({ left: -999, top: -999 })
 let ctxMenuPos = null, submenuItemNums = 0
 
-const { playbackQueueViewShow, playingViewShow, playingViewThemeIndex, commonNotificationShow, commonCtxMenuData, commonCtxMenuSeparatorNums, commonNotificationType, playlistCategoryViewShow, commonCtxMenuShow, commonNotificationText } = storeToRefs(useAppCommonStore())
+const { playbackQueueViewShow, playingViewShow, playingViewThemeIndex, commonNotificationShow, commonCtxMenuData,
+    commonCtxMenuSeparatorNums, commonNotificationType, playlistCategoryViewShow, commonCtxMenuShow, playlistExportToolbarShow,
+    commonNotificationText } = storeToRefs(useAppCommonStore())
 const { hideCommonCtxMenu, showCommonCtxMenu } = useAppCommonStore()
 
 const { isDefaultClassicLayout } = storeToRefs(useSettingStore())
@@ -145,7 +148,7 @@ EventBus.on('commonCtxMenu-show', ({ event, value }) => {
             </PlaybackQueueView>
         </transition>
 
-
+        <PlaylistExportToolbar id="playlist-export-toolbar" v-show="playlistExportToolbarShow"></PlaylistExportToolbar>
     </div>
 </template>
 <style>

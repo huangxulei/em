@@ -199,12 +199,29 @@ const addToQueue = () => {
     refresh()
 }
 
+const exportChecked = () => {
+    if (activeTab.value == 1) {
+        if (isLocalMusic()) {
+            showPlaylistExportToolbar(checkedData)
+        }
+    }
+    // else if (isFreeFM()) {
+    //     exportRadios(checkedData)
+    // }
+}
+
 onMounted(() => {
     updateCurrentPlatform(0)
     visitTab(getFirstVisibleTabIndex())
 })
 
-//TODO
+/**
+ * 
+ * @param {*} event 
+ * @param {*} dataType 
+ * @param {*} elSelector 节点 显示的位置 
+ * @param {*} actionType 
+ */
 const showAddToList = (event, dataType, elSelector, actionType) => {
     event.stopPropagation()
     const el = document.querySelector(elSelector)
@@ -371,7 +388,7 @@ EventBus.on("commonCtxMenuItem-finish", refresh)
                         </svg>
                     </template>
                 </SvgTextButton>
-                <!-- <SvgTextButton :disabled="checkedData.length < 1" text="导出" class="spacing" v-show="actionShowCtl.exportBtn"
+                <SvgTextButton :disabled="checkedData.length < 1" text="导出" class="spacing" v-show="actionShowCtl.exportBtn"
                     :leftAction="exportChecked">
                     <template #left-img>
                         <svg width="16" height="16" viewBox="0 0 853.89 768.12" xmlns="http://www.w3.org/2000/svg">
@@ -385,7 +402,7 @@ EventBus.on("commonCtxMenuItem-finish", refresh)
                             </g>
                         </svg>
                     </template>
-                </SvgTextButton>-->
+                </SvgTextButton>
                 <SvgTextButton :disabled="checkedData.length < 1" text="删除" class="spacing" v-show="actionShowCtl.deleteBtn"
                     :leftAction="removeChecked">
                     <template #left-img>

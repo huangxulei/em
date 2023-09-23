@@ -67,6 +67,9 @@ const visitPlaylistCreate = () => {
     isLocalMusicType(currentDataType) ? visitLocalPlaylistCreate() : visitCustomPlaylistCreate()
 }
 
+/**
+ * 名字 name / 显示图标 icon /执行的操作 action (function)
+ */
 const MenuItems = {
     sp: {
         separator: true
@@ -142,7 +145,7 @@ const doInit = (data) => {
     setCommonCtxMenuData(data)
 }
 
-//获取菜单 Menu.item的一个数组 
+//获取菜单 Menu.item的一个数组 菜单显示的数据
 /**
  *  --5
  * @param {*} dataType 场景

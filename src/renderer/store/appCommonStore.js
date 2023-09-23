@@ -266,5 +266,13 @@ export const useAppCommonStore = defineStore('appCommon', {
                 this.commonCtxMenuSeparatorNums = spCnt
             }
         },
+        showPlaylistExportToolbar(contextItem) {
+            this.playlistExportContextItem = contextItem
+            this.playlistExportToolbarShow = true
+        },
+        hidePlaylistExportToolbar() {
+            this.playlistExportContextItem = null
+            this.playlistExportToolbarShow = false
+        }
     }
 })
