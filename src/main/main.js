@@ -2,7 +2,8 @@ const { app, BrowserWindow, ipcMain, dialog, Menu, protocol, Tray } = require('e
 const { isMacOS, isWinOS, useCustomTrafficLight, isDevEnv, USER_AGENTS, AUDIO_EXTS, IMAGE_EXTS,
     APP_ICON, AUDIO_PLAYLIST_EXTS, BACKUP_FILE_EXTS } = require('./env')
 const { randomTextWithinAlphabetNums, FILE_PREFIX, nextInt, MD5, SHA1,
-    scanDirTracks, readText, IMAGE_PROTOCAL, parseImageDataFromFile } = require('./common')
+    scanDirTracks, readText, IMAGE_PROTOCAL, parseImageDataFromFile,
+    writeM3uFile, writePlsFile } = require('./common')
 const path = require('path')
 //显示模式 默认/简单(小屏幕)
 const DEFAULT_LAYOUT = 'default', SIMPLE_LAYOUT = 'simple'
@@ -391,6 +392,23 @@ const registryGlobalListeners = () => {
         } else if (file.toLowerCase().endsWith(`.${AUDIO_PLAYLIST_EXTS[0]}`)
             || file.toLowerCase().endsWith(`.${AUDIO_PLAYLIST_EXTS[1]}`)) {
             result = await parseM3uFile(file)
+        }
+        return result
+    })
+
+    ipcMain.handle('export-playlists', async (event, ...args) => {
+        const { path, format, data: playlists } = args[0]
+        let result = false
+        if (playlists && playlists.length > 0) {
+            for (var i = 0; i < playlists.length; i++) {
+                const { title, data } = playlists[i]
+                let file = `${path}/${title}.${format}`
+                if (format === AUDIO_PLAYLIST_EXTS[2]) {
+                    result = result || await writePlsFile(file, data)
+                } else if (format === AUDIO_PLAYLIST_EXTS[1]) {
+                    result = result || await writeM3uFile(file, data)
+                }
+            }
         }
         return result
     })

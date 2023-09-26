@@ -250,6 +250,36 @@ function readText(file, encoding) {
     return null
 }
 
+//保存为.pls格式文件
+const writePlsFile = async (filename, data) => {
+    let content = '[Playlist]\n'
+    for (var i = 0; i < data.length; i++) {
+        const { title, duration, url } = data[i]
+        const num = i + 1
+        const file = transformPath(url)
+        const length = duration > 0 ? Math.ceil(duration / 1000) : -1
+        content += `File${num}=${file}\n`
+        content += `Title${num}=${title}\n`
+        content += `Length${num}=${length}\n`
+    }
+    content += `NumberOfEntries=${data.length}\n`
+    content += 'Version=2\n'
+    return writeText(filename, content)
+}
+
+//保存为.m3u格式文件
+const writeM3uFile = async (filename, data) => {
+    console.log(filename)
+    let content = '#EXTM3U\n'
+    for (var i = 0; i < data.length; i++) {
+        const { title, duration, url } = data[i]
+        const file = transformPath(url)
+        const length = duration > 0 ? Math.ceil(duration / 1000) : -1
+        content += `#EXTINF:${length}, ${title}\n${file}\n`
+    }
+    return writeText(filename, content)
+}
+
 module.exports = {
     randomText,
     randomTextWithinAlphabetNums,
@@ -261,5 +291,7 @@ module.exports = {
     MD5,
     SHA1,
     scanDirTracks,
-    readText
+    readText,
+    writePlsFile,
+    writeM3uFile
 }
