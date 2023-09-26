@@ -250,6 +250,17 @@ function readText(file, encoding) {
     return null
 }
 
+function writeText(file, text) {
+    try {
+        file = transformPath(file)
+        writeFileSync(file, text)
+        return true
+    } catch (error) {
+        console.log(error)
+    }
+    return false
+}
+
 //保存为.pls格式文件
 const writePlsFile = async (filename, data) => {
     let content = '[Playlist]\n'
