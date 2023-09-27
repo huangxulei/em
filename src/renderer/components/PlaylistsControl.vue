@@ -8,10 +8,17 @@ const { isPlatformValid } = usePlatformStore()
 
 const props = defineProps({
     data: Array,
-    loading: Boolean
+    checkbox: Boolean,
+    checkedAll: Boolean,
+    ignoreCheckAllEvent: Boolean,
+    checkChangedFn: Function,
+    loading: Boolean,
+    customLoadingCount: Number
 })
 
 const visitItem = (item) => {
+    const { checkbox } = props
+    if (checkbox) return
     const { id, platform } = item
     const platformValid = isPlatformValid(platform)
     const idValid = (typeof (id) == 'string') ? (id.trim().length > 0) : (id > 0)
@@ -25,7 +32,9 @@ const visitItem = (item) => {
 <template>
     <div class="playlists-ctl">
         <PaginationTiles v-show="!loading">
-            <ImageTextTile v-for="item in data" @click="visitItem(item)" :cover="item.cover" :title="item.title" :playable="true">
+            <ImageTextTile v-for="item in data" @click="visitItem(item)" :cover="item.cover"
+                :checkbox="checkbox" :checked="checkedAll" :ignoreCheckAllEvent="ignoreCheckAllEvent"
+                :title="item.title" :playable="true" :checkChangedFn="(checked) => checkChangedFn(checked, item)" :platform="item.platform">
             </ImageTextTile>
         </PaginationTiles>
     </div>

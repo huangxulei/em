@@ -130,7 +130,7 @@ const switchTab = () => {
                 deleteBtn: true,
                 exportBtn: true
             })
-            tabData.push(...localPlaylists())
+            tabData.push(...localPlaylists.value)
         }
         currentTabView.value = PlaylistsControl
     }
