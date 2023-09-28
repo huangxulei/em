@@ -397,6 +397,7 @@ const registryGlobalListeners = () => {
     })
 
     ipcMain.handle('export-playlists', async (event, ...args) => {
+
         const { path, format, data: playlists } = args[0]
         let result = false
         if (playlists && playlists.length > 0) {

@@ -26,7 +26,7 @@ const { updateCurrentPlatform } = usePlatformStore()
 const { localPlaylists } = storeToRefs(useLocalMusicStore())
 const { getLocalPlaylist, removeFromLocalPlaylist, removeLocalPlaylist } = useLocalMusicStore()
 const { commonCtxMenuShow, commonCtxItem } = storeToRefs(useAppCommonStore())
-const { showToast, updateCommonCtxItem, hideAllCtxMenus, } = useAppCommonStore()
+const { showToast, updateCommonCtxItem, hideAllCtxMenus, showPlaylistExportToolbar } = useAppCommonStore()
 const { isShowDialogBeforeBatchDelete } = storeToRefs(useSettingStore())
 
 //来至于 router 

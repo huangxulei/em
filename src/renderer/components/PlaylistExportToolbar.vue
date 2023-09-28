@@ -22,6 +22,13 @@ const setPlaylistFormat = (item, index) => {
 }
 
 const exportPathRef = ref(null)
+const selectDir = async () => {
+    if (!ipcRenderer || !exportPathRef.value) return
+    const result = await ipcRenderer.invoke('open-dirs')
+    if (result) {
+        exportPathRef.value.value = result[0]
+    }
+}
 
 const exportPlaylist = async () => {
     if (!ipcRenderer || !exportPathRef.value) return
@@ -67,6 +74,25 @@ const exportPlaylist = async () => {
                             </g>
                         </svg>
                         <span>确定</span>
+                    </div>
+                </div>
+            </div>
+            <div class="center">
+                <div class="row first">
+                    <div class="cate-name">歌单格式：</div>
+                    <div class="row-content">
+                        <span v-for="(item, index) in playlistFormats" :class="{ active: index == formatIndex }"
+                            class="list-item" @click="setPlaylistFormat(item, index)" v-html="item.name">
+                        </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="cate-name">文件路径：</div>
+                    <div class="row-content">
+                        <div class="dir-input-ctl">
+                            <input class="text-input-ctl" ref="exportPathRef" placeholder="导出文件存储路径" />
+                            <div class="select-btn" @click="selectDir">选择</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -118,5 +144,108 @@ const exportPlaylist = async () => {
 .playlist-export-toolbar .header .left-action svg {
     fill: var(--button-icon-btn-color);
     cursor: pointer;
+}
+
+.playlist-export-toolbar .header .title-wrap {
+    margin-left: 6px;
+    flex: 1;
+    display: flex;
+}
+
+.playlist-export-toolbar .header .title {
+    font-size: var(--content-text-size);
+}
+
+.playlist-export-toolbar .text-btn {
+    text-align: left;
+    font-size: var(--content-text-tip-text-size);
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    margin-left: 33px;
+    cursor: pointer;
+}
+
+.playlist-export-toolbar .center {
+    padding: 0px 33px;
+    flex: 1;
+    background: var(--content-bg-color);
+    overflow: hidden;
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    overflow: scroll;
+    overflow-x: hidden;
+}
+
+.playlist-export-toolbar .center .first {
+    margin-top: 25px;
+}
+
+.playlist-export-toolbar .center .row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: 30px;
+}
+
+.playlist-export-toolbar .center .row .cate-name {
+    width: 99px;
+    text-align: left;
+    margin-right: 10px;
+    margin-top: 3px;
+}
+
+.playlist-export-toolbar .center .row-content {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    flex: 1;
+}
+
+.playlist-export-toolbar .center .row-content .list-item {
+    min-width: 68px;
+    padding: 6px;
+    text-align: center;
+    border-radius: 10rem;
+    margin-right: 20px;
+    border: 0px solid var(--border-color);
+    cursor: pointer;
+}
+
+.playlist-export-toolbar .center .row-content .active {
+    background: var(--button-icon-text-btn-bg-color) !important;
+    color: var(--button-icon-text-btn-icon-color) !important;
+}
+
+.playlist-export-toolbar .center .dir-input-ctl {
+    display: flex;
+    align-items: center;
+}
+
+.playlist-export-toolbar .center .dir-input-ctl .text-input-ctl {
+    border-top-right-radius: 0px !important;
+    border-bottom-right-radius: 0px !important;
+}
+
+.playlist-export-toolbar .center .dir-input-ctl .select-btn {
+    background: var(--button-icon-text-btn-bg-color);
+    color: var(--button-icon-text-btn-icon-color);
+    width: 68px;
+    height: 37.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--button-icon-text-btn-bg-color);
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    font-size: var(--content-text-tip-text-size);
+    cursor: pointer;
+}
+
+/* 别扭挖坑的方式 */
+.playlist-export-toolbar .container-win-style .dir-input-ctl .select-btn {
+    height: 40px;
 }
 </style>
